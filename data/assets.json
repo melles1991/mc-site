@@ -1,0 +1,72 @@
+{
+  "users": {
+    "0de72523-ace1-4283-827b-eacee2ead038": {
+      "userId": "0de72523-ace1-4283-827b-eacee2ead038",
+      "skin": {
+        "kind": "skin",
+        "publicPath": "/uploads/users/0de72523-ace1-4283-827b-eacee2ead038/skin.png?v=1783095324107",
+        "width": 64,
+        "height": 64,
+        "bytes": 1293,
+        "updatedAt": "2026-07-03T16:15:24.107Z"
+      },
+      "cape": {
+        "kind": "cape",
+        "publicPath": "/uploads/users/0de72523-ace1-4283-827b-eacee2ead038/cape.png?v=1783095324110",
+        "width": 64,
+        "height": 32,
+        "bytes": 682,
+        "updatedAt": "2026-07-03T16:15:24.110Z"
+      }
+    },
+    "ea98b16d-aaa6-4c25-9461-1f9ac5d00dfd": {
+      "userId": "ea98b16d-aaa6-4c25-9461-1f9ac5d00dfd",
+      "skin": {
+        "kind": "skin",
+        "publicPath": "/uploads/users/ea98b16d-aaa6-4c25-9461-1f9ac5d00dfd/skin.png?v=1783154777832",
+        "width": 64,
+        "height": 64,
+        "bytes": 5118,
+        "updatedAt": "2026-07-04T08:46:17.832Z"
+      },
+      "cape": {
+        "kind": "cape",
+        "publicPath": "/uploads/users/ea98b16d-aaa6-4c25-9461-1f9ac5d00dfd/cape.png?v=1783154777835",
+        "width": 64,
+        "height": 32,
+        "bytes": 639,
+        "updatedAt": "2026-07-04T08:46:17.835Z"
+      }
+    },
+    "9a166d02-183f-4a01-9cb1-e49a0d5925a2": {
+      "userId": "9a166d02-183f-4a01-9cb1-e49a0d5925a2",
+      "skin": {
+        "kind": "skin",
+        "publicPath": "/uploads/users/9a166d02-183f-4a01-9cb1-e49a0d5925a2/skin.png?v=1785596911542",
+        "width": 64,
+        "height": 64,
+        "bytes": 1293,
+        "updatedAt": "2026-08-01T15:08:31.542Z"
+      },
+      "cape": {
+        "kind": "cape",
+        "publicPath": "/uploads/users/9a166d02-183f-4a01-9cb1-e49a0d5925a2/cape.png?v=1785596918900",
+        "width": 64,
+        "height": 32,
+        "bytes": 682,
+        "updatedAt": "2026-08-01T15:08:38.900Z"
+      }
+    },
+    "2e45545d-255d-4b1c-a381-c8b50d06dbe7": {
+      "userId": "2e45545d-255d-4b1c-a381-c8b50d06dbe7",
+      "skin": {
+        "kind": "skin",
+        "publicPath": "/uploads/users/2e45545d-255d-4b1c-a381-c8b50d06dbe7/skin.png?v=1792524753857",
+        "width": 64,
+        "height": 64,
+        "bytes": 1336,
+        "updatedAt": "2026-10-20T19:32:33.857Z"
+      }
+    }
+  }
+}

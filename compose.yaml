@@ -1,0 +1,35 @@
+name: homecraft-site
+services:
+  site:
+    build: .
+    restart: unless-stopped
+    init: true
+    user: "1000:1000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3000"
+      PUBLIC_SITE_URL: https://homecraft-mc.pp.ua
+      HOMECRAFT_PUBLIC_SITE_URL: https://homecraft-mc.pp.ua
+      HOMECRAFT_ENV_FILE: /app/config/site.env
+      HOMECRAFT_MC_HOST: 51.83.184.222:25618
+      HOMECRAFT_SERVER_MODS_DIR: /app/client-mods
+      COOKIE_SECURE: "true"
+    ports:
+      - "127.0.0.1:3018:3000"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+    mem_limit: 256m
+    cpus: 1.0
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "2"}

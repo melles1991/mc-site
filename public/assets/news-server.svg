@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420" role="img" aria-label="server update">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#c8efff"/><stop offset="1" stop-color="#5c8db7"/></linearGradient><linearGradient id="rack" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#1f3142"/><stop offset="1" stop-color="#0d151f"/></linearGradient></defs>
+  <rect width="760" height="420" fill="url(#bg)"/>
+  <g opacity=".82">
+    <rect x="34" y="48" width="120" height="320" fill="url(#rack)"/><rect x="174" y="48" width="120" height="320" fill="url(#rack)"/><rect x="606" y="48" width="120" height="320" fill="url(#rack)"/>
+    <g fill="#4de5b1"><rect x="55" y="82" width="38" height="8"/><rect x="55" y="130" width="62" height="8"/><rect x="195" y="91" width="44" height="8"/><rect x="627" y="94" width="58" height="8"/><rect x="627" y="166" width="41" height="8"/></g>
+    <g fill="#264357"><rect x="55" y="108" width="78" height="12"/><rect x="55" y="158" width="78" height="12"/><rect x="195" y="122" width="78" height="12"/><rect x="627" y="126" width="78" height="12"/><rect x="627" y="198" width="78" height="12"/></g>
+  </g>
+  <g>
+    <rect x="330" y="90" width="120" height="120" fill="#f0b17b"/><rect x="312" y="190" width="155" height="150" fill="#3e5c74"/><rect x="291" y="222" width="52" height="118" fill="#2d3542"/><rect x="454" y="224" width="52" height="116" fill="#2d3542"/>
+    <rect x="340" y="120" width="24" height="24" fill="#fff"/><rect x="414" y="120" width="24" height="24" fill="#fff"/><rect x="364" y="172" width="62" height="12" fill="#4b2c24"/>
+    <rect x="340" y="72" width="124" height="46" fill="#202c3a"/><rect x="399" y="54" width="28" height="40" fill="#f3a51f"/><rect x="425" y="72" width="50" height="30" fill="#111820"/>
+    <rect x="326" y="242" width="130" height="62" fill="#162534"/><rect x="342" y="256" width="44" height="9" fill="#38e4b5"/><rect x="342" y="278" width="75" height="9" fill="#29a7ff"/><circle cx="434" cy="259" r="7" fill="#ffb119"/><circle cx="434" cy="282" r="7" fill="#49ec98"/></g>
+</svg>

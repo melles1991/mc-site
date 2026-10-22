@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "bootstrapped": true,
+  "migrationComplete": true,
+  "characters": [
+    {
+      "id": "17a1c5ab-2119-484c-a384-379db45d8b1d",
+      "ownerId": "9a166d02-183f-4a01-9cb1-e49a0d5925a2",
+      "nick": "Khayen",
+      "uuid": "1098ff75-0643-3b86-9638-bfb81d51a729",
+      "status": "active",
+      "createdAt": "2026-10-22T17:58:58.653Z",
+      "legacyVerified": true
+    },
+    {
+      "id": "c312557a-ec92-44e8-93cc-34518194c7b5",
+      "ownerId": "2e45545d-255d-4b1c-a381-c8b50d06dbe7",
+      "nick": "kikimora",
+      "uuid": "875c199b-09a2-34a7-a37d-8f2161c539c8",
+      "status": "active",
+      "createdAt": "2026-10-22T17:58:58.655Z",
+      "legacyVerified": true
+    }
+  ],
+  "adminIds": []
+}

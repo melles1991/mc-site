@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "fileName": "homecraft-resource-pack.zip",
+  "displayName": "Bare Bones + Bushy Leaves",
+  "description": "Bare Bones + Bushy Leaves for Minecraft 1.21.11",
+  "sha1": "0fc63ff40d643cd13518784e9ad8c257f690e435",
+  "id": "a5ac5130-3cf0-5eaf-9454-fff379e91418",
+  "sizeBytes": 5080097,
+  "updatedAt": "2026-06-28T22:34:25Z",
+  "require": false,
+  "prompt": {
+    "text": "Home Craft рекомендує встановити серверний ресурс-пак.",
+    "color": "gold"
+  },
+  "sourceFile": "Bare_Bones_1.21.11_Bushy_Leaves_Merged(1).zip",
+  "available": true
+}

@@ -1,0 +1,44 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Адони — Home Craft</title><link rel="stylesheet" href="/styles.css?v=45"></head><body>
+<header class="site-header"><div class="container navbar"><a class="brand" href="/"><img class="brand-logo" src="/assets/logo.svg" alt=""><span class="brand-name">Home Craft</span><span class="status-pill"><span class="status-dot js-server-dot offline"></span><span class="js-server-status">Офлайн</span></span></a><nav class="nav-links"><a href="/">Головна</a><a href="/support">Підтримати</a><a href="/map">Мапа світу</a><a class="active" href="/download" data-nav-download>Адони</a><a href="/status">Стан сервера</a><a class="js-auth-link" href="/login">Увійти</a></nav><a class="discord-btn" href="https://discord.gg/stNeSaVkhM" target="_blank" rel="noreferrer">Discord</a></div></header>
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="season-pill">CLIENT ADDONS</span>
+      <h1>Адони Home Craft</h1>
+      <p>Тут показуються тільки наші зібрані Home Craft JAR-адони, які не є server-only і реально потрібні клієнту: GUI, клієнтські події, рендери, моделі або візуальні ефекти.</p>
+    </div>
+  </section>
+  <section class="section section-tight">
+    <div class="container download-grid download-addons-only">
+      <article class="card download-card">
+        <h3>HomeCraft Launcher — Java для Windows та Linux</h3>
+        <p>Завантажуй і оновлюй клієнтські моди автоматично. Лаунчер порівнює SHA-256, перевіряє файли та зберігає резервні копії попередніх версій.</p>
+        <p><a class="btn btn-primary" href="/launcher/HomeCraft-Launcher-Java.zip" download>Завантажити HomeCraft Launcher</a></p>
+        <p class="muted-small">Java 21+ (можна Java 25). В архіві готовий HomeCraftLauncher.jar, вихідний код Java, запуск для Windows (.bat) та Linux (.sh). Гру запускає твій Minecraft/Prism Launcher.</p>
+      </article>
+      <article class="card download-card js-client-mods-card">
+        <div class="section-head compact-head">
+          <div>
+            <h3>Обовʼязкові клієнтські адони</h3>
+            <p>Сторонні бібліотеки, залежності, resource pack і server-only моди не показуються. Мапа сайту залишається тільки на сервері.</p>
+          </div>
+          <div class="inline-actions"><a class="btn btn-outline btn-small" href="/status">Стан сервера</a></div>
+        </div>
+        <div class="info-list">
+          <div class="info-row"><span>Адони</span><strong class="js-client-mods-count">—</strong></div>
+          <div class="info-row"><span>Режим</span><strong class="js-client-mods-mode">—</strong></div>
+          <div class="info-row"><span>Оновлено</span><strong class="js-client-mods-updated">—</strong></div>
+        </div>
+        <p><strong>Сумісність:</strong> метадані HomeCraft приймають NeoForge у діапазоні <code>[26.3.0.0-beta, 26.4)</code>. Проте це не гарантує мережеву сумісність усіх збірок: між <code>26.3.0.0-beta</code> та <code>26.3.0.95</code> вже спостерігалася помилка <code>registry_data_map_sync</code>. Тому для фактичного підключення використовуй однаковий білд клієнта й сервера. Рекомендований серверний білд — <strong>26.3.0.95</strong>.</p>
+        <p>Використовуй Minecraft <strong class="js-required-minecraft">26.3</strong>, NeoForge <strong class="js-required-neoforge">26.3.0.95</strong> і Java <strong class="js-required-java">25</strong>.</p>
+        <p><a class="btn btn-outline js-neoforge-installer" href="https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.95/neoforge-26.3.0.95-installer.jar">Завантажити інсталятор NeoForge</a></p>
+        <div class="download-file-list js-client-mods-list"><p class="muted-small">Завантаження списку...</p></div>
+        <p class="muted-small">Встановлення: завантаж JAR-файли та поклади їх у папку <code>mods</code> клієнта Minecraft <span class="js-required-minecraft">26.3</span> із NeoForge <span class="js-required-neoforge">26.3.0.95</span> та Java <span class="js-required-java">25</span>. Перед копіюванням видали старі версії цих самих модів.</p>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container footer-inner"><div><strong>Home Craft</strong> — український простір свободи.</div><div>Онлайн: <span class="js-online-count">0/100</span></div></div></footer>
+  <script src="/starfield.js?v=45"></script>
+  <script src="/app.js?v=67"></script>
+</body></html>

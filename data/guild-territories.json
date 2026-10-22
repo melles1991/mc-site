@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "source": "homecraft-guild-neoforge",
+  "updatedAt": "2026-10-22T17:59:28.066Z",
+  "territories": [
+    {
+      "id": "claim_f841a1a0b643",
+      "type": "GUILD",
+      "ownerName": "Khayen",
+      "guildName": "Капібара",
+      "dimension": "minecraft:overworld",
+      "x": 3282,
+      "y": 69,
+      "z": 3878,
+      "size": 64,
+      "minX": 3250,
+      "maxX": 3313,
+      "minZ": 3846,
+      "maxZ": 3909,
+      "createdAt": "2026-07-07T11:18:29.774108300Z"
+    }
+  ]
+}

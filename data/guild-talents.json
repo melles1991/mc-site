@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-22T17:59:28.067Z",
+  "guilds": [
+    {
+      "guildId": "guild_31ccf15013a5",
+      "guildName": "Капібара",
+      "level": 2,
+      "version": 3,
+      "revision": 4,
+      "total": 4,
+      "spent": 4,
+      "memberTotal": 2,
+      "memberSpent": 2,
+      "memberAvailable": 0,
+      "golemTotal": 2,
+      "golemSpent": 2,
+      "golemAvailable": 0,
+      "migrationPending": false,
+      "integrityError": false,
+      "freeReallocationAvailable": true,
+      "lastResetAt": 0,
+      "ranks": {
+        "golem_health_1": 1,
+        "golem_regen_1": 1,
+        "member_weapon_1": 2
+      },
+      "memberUuids": [
+        "1098ff75-0643-3b86-9638-bfb81d51a729",
+        "875c199b-09a2-34a7-a37d-8f2161c539c8"
+      ]
+    }
+  ]
+}

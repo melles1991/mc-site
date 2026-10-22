@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="620" viewBox="0 0 760 620" role="img" aria-label="isometric minecraft house">
+  <defs>
+    <linearGradient id="water" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#2fa3c5"/><stop offset="1" stop-color="#092c41"/></linearGradient>
+    <linearGradient id="wood" x1="0" x2="1"><stop stop-color="#9d5a2e"/><stop offset="1" stop-color="#3b1f16"/></linearGradient>
+    <linearGradient id="roof" x1="0" x2="1"><stop stop-color="#232c38"/><stop offset="1" stop-color="#0b1018"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="24" stdDeviation="16" flood-color="#000" flood-opacity=".55"/></filter>
+    <filter id="warm" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g opacity=".92" filter="url(#shadow)">
+    <path d="M80 438 360 314 682 455 390 594Z" fill="url(#water)" opacity=".78"/>
+    <path d="M111 438 359 330 650 457 390 576Z" fill="#07131d" opacity=".32"/>
+    <path d="M150 430 358 342 612 455 390 558Z" fill="#47d4e2" opacity=".22"/>
+    <path d="M55 421 96 405 127 419 86 436Z" fill="#c9c7ba"/><path d="M612 436 652 420 694 438 653 455Z" fill="#c9c7ba"/>
+    <path d="M358 350 521 420 363 495 203 423Z" fill="#5b3423"/>
+    <path d="M215 424 363 488 363 549 215 483Z" fill="#412318"/>
+    <path d="M363 488 510 420 510 481 363 549Z" fill="#2e1a14"/>
+    <path d="M244 333 371 276 498 331 365 393Z" fill="#6d3d25"/>
+    <path d="M253 333 365 382 365 487 253 437Z" fill="url(#wood)"/>
+    <path d="M365 382 488 329 488 434 365 487Z" fill="#4a271a"/>
+    <path d="M232 332 371 258 516 329 364 401Z" fill="#121820"/>
+    <path d="M250 316 371 254 494 316 364 378Z" fill="url(#roof)"/>
+    <path d="M248 316 364 378 364 401 232 332Z" fill="#0c1118"/>
+    <path d="M364 378 494 316 516 329 364 401Z" fill="#070b11"/>
+    <path d="M301 218 380 182 462 219 380 259Z" fill="#6f4026"/>
+    <path d="M309 219 381 250 381 323 309 289Z" fill="#8f512d"/>
+    <path d="M381 250 453 218 453 292 381 323Z" fill="#4b2819"/>
+    <path d="M286 219 380 168 478 218 381 267Z" fill="#151b24"/>
+    <path d="M302 205 380 166 462 205 381 248Z" fill="#262f3b"/>
+    <path d="M302 205 381 248 381 267 286 219Z" fill="#0c1117"/>
+    <path d="M381 248 462 205 478 218 381 267Z" fill="#090d13"/>
+    <g opacity=".82">
+      <rect x="279" y="372" width="31" height="44" fill="#12251d"/><rect x="283" y="376" width="23" height="15" fill="#ffd26c" filter="url(#warm)"/>
+      <rect x="416" y="359" width="30" height="39" fill="#101f1b"/><rect x="420" y="363" width="22" height="13" fill="#ffd26c" filter="url(#warm)"/>
+      <rect x="335" y="251" width="24" height="33" fill="#101f1b"/><rect x="339" y="254" width="17" height="11" fill="#ffc86d" filter="url(#warm)"/>
+      <rect x="407" y="245" width="22" height="31" fill="#101f1b"/><rect x="410" y="248" width="16" height="10" fill="#ffc86d" filter="url(#warm)"/>
+    </g>
+    <g fill="#161f18">
+      <rect x="244" y="441" width="18" height="62"/><rect x="476" y="432" width="18" height="70"/><rect x="354" y="493" width="20" height="74"/><rect x="501" y="418" width="15" height="62"/>
+    </g>
+    <g stroke="#aa6d38" stroke-width="9" stroke-linecap="round" opacity=".95">
+      <path d="M204 423 363 493 510 422" fill="none"/><path d="M207 454 363 524 509 454" fill="none"/>
+    </g>
+    <g fill="#224c31"><rect x="315" y="304" width="22" height="31" rx="2"/><rect x="436" y="309" width="25" height="28" rx="2"/><rect x="261" y="394" width="23" height="28" rx="2"/><rect x="460" y="381" width="26" height="28" rx="2"/></g>
+  </g>
+</svg>

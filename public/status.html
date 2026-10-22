@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Стан сервера — Home Craft</title>
+  <meta name="description" content="Онлайн, кількість гравців і технічний статус Home Craft.">
+  <link rel="stylesheet" href="/styles.css?v=41">
+</head>
+<body>
+<header class="site-header">
+  <div class="container navbar">
+    <a class="brand" href="/"><img class="brand-logo" src="/assets/logo.svg" alt=""><span class="brand-name">Home Craft</span><span class="status-pill"><span class="status-dot js-server-dot offline"></span><span class="js-server-status">Офлайн</span></span></a>
+    <nav class="nav-links" aria-label="Головна навігація"><a href="/">Головна</a><a href="/support">Підтримати</a><a href="/map">Мапа світу</a><a href="/download" data-nav-download>Адони</a><a class="active" href="/status">Стан сервера</a><a class="js-auth-link" href="/login">Увійти</a></nav>
+    <a class="discord-btn" href="https://discord.gg/stNeSaVkhM" target="_blank" rel="noreferrer">Discord</a>
+  </div>
+</header>
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="season-pill">LIVE STATUS</span>
+      <h1>Стан сервера</h1>
+      <p>Окрема сторінка для онлайну, кількості гравців, IP та перевірки зв’язку між сайтом і Minecraft сервером.</p>
+      <div class="status-actions">
+        <div class="ip-box"><span>⛓</span><span class="js-server-host">homecraft.local:25565</span><button class="copy-btn" data-copy="homecraft.local:25565" title="Скопіювати">⧉</button></div>
+        <a class="btn btn-outline btn-small" href="/download">Почати гру</a>
+      </div>
+    </div>
+  </section>
+  <section class="section section-tight">
+    <div class="container">
+      <div class="status-grid">
+        <article class="card status-main js-status-card">
+          <div class="status-card-head"><h2 class="status-card-title">Поточний стан</h2><span class="badge bad">Офлайн</span></div>
+          <div class="info-list"><div class="info-row"><span>Гравці</span><strong class="js-online-count">0/20</strong></div></div>
+        </article>
+        <article class="card status-side">
+          <h3>Технічна інформація</h3>
+          <div class="info-list js-status-technical"><div class="info-row"><span>Джерело</span><strong>очікуємо сайт</strong></div></div>
+          <p class="status-note">Статус оновлюється автоматично. Якщо heartbeat від мода ще не прийшов, сайт використовує Minecraft ping / TCP fallback.</p>
+        </article>
+      </div>
+      <div class="players-grid">
+        <article class="card players-card"><h3>Онлайн</h3><div class="player-list js-players-online"><span class="muted-small">Список порожній.</span></div></article>
+        <article class="card players-card"><h3>Авторизовані</h3><div class="player-list js-players-auth"><span class="muted-small">Немає авторизованих.</span></div></article>
+        <article class="card players-card"><h3>Очікують входу</h3><div class="player-list js-players-pending"><span class="muted-small">Ніхто не очікує.</span></div></article>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container footer-inner"><div><strong>Home Craft</strong> — український простір свободи.</div><div>Онлайн: <span class="js-online-count">0/100</span></div></div></footer>
+
+  <script src="/starfield.js?v=41"></script>
+  <script src="/app.js?v=67"></script>
+</body>
+</html>

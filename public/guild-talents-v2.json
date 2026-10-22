@@ -1,0 +1,1842 @@
+{
+  "schemaVersion": 2,
+  "metadata": {
+    "name": "HomeCraft Guild Talents — Classic, 24 talents in each tree; 12 points per tree",
+    "target": "Minecraft 26.3 / NeoForge",
+    "source": "Restored 48-node R5.9.4 talent definitions with independent point budgets",
+    "implementationStatus": "DESIGN ONLY; not wired into Java mod",
+    "migration": "Existing saved rank maps remain valid when each separate tree fits 12 points; old ranks are never silently deleted"
+  },
+  "balance": {
+    "maxGuildLevel": 10,
+    "maxTotalTalentPoints": 24,
+    "pointsGrantedAtLevel": [
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1
+    ],
+    "totalGuildXpRequiredByLevel": [
+      0,
+      0,
+      500,
+      2000,
+      5000,
+      11000,
+      21000,
+      37000,
+      58000,
+      85000,
+      120000
+    ],
+    "pool": "separate_per_tree",
+    "tierPointsRequired": {
+      "1": 0,
+      "2": 2,
+      "3": 4,
+      "4": 6,
+      "5": 8
+    },
+    "preserveExistingGuildXp": true,
+    "maxPointsPerTree": 12,
+    "totalTalentPointsAcrossTrees": 24
+  },
+  "trees": [
+    {
+      "id": "member",
+      "title": "Учасники",
+      "subtitle": "Розвиток і здібності учасників гільдії",
+      "columns": 5
+    },
+    {
+      "id": "golem",
+      "title": "Големи",
+      "subtitle": "Міць, захист і тактика големів",
+      "columns": 5
+    }
+  ],
+  "talents": [
+    {
+      "id": "golem_regen_1",
+      "tree": "golem",
+      "name": "Самовідновлення I",
+      "description": "Големи швидше лікуються біля тотема.",
+      "effect": "+10% до лікування біля тотема",
+      "icon": "homecraftguild:textures/gui/talents/golem_regen.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 2,
+      "position": {
+        "column": 0,
+        "row": 0
+      },
+      "requirements": {
+        "minGuildLevel": 1,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemTotemHealPct": 10
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemTotemHealPct": 15
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_health_1",
+      "tree": "golem",
+      "name": "Посилений каркас I",
+      "description": "Максимальне здоров’я гільдійних големів зростає.",
+      "effect": "+5% до max HP големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_health.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 3,
+      "position": {
+        "column": 3,
+        "row": 0
+      },
+      "requirements": {
+        "minGuildLevel": 1,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemMaxHpPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemMaxHpPct": 8
+          }
+        },
+        {
+          "rank": 3,
+          "bonuses": {
+            "golemMaxHpPct": 10
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_speed_1",
+      "tree": "golem",
+      "name": "Марш варти I",
+      "description": "Гільдійні големи рухаються швидше.",
+      "effect": "+5% до швидкості големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_speed.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 2,
+      "position": {
+        "column": 1,
+        "row": 1
+      },
+      "requirements": {
+        "minGuildLevel": 2,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemSpeedPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemSpeedPct": 7
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_damage_1",
+      "tree": "golem",
+      "name": "Важкий удар I",
+      "description": "Гільдійні големи завдають більше шкоди.",
+      "effect": "+5% до шкоди големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_damage.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 3,
+      "position": {
+        "column": 4,
+        "row": 1
+      },
+      "requirements": {
+        "minGuildLevel": 2,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemDamagePct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemDamagePct": 7
+          }
+        },
+        {
+          "rank": 3,
+          "bonuses": {
+            "golemDamagePct": 10
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_out_of_combat_regen_1",
+      "tree": "golem",
+      "name": "Тиха регенерація I",
+      "description": "Големи повільно відновлюються поза боєм незалежно від території.",
+      "effect": "1 HP кожні 8 секунд поза боєм",
+      "icon": "homecraftguild:textures/gui/talents/golem_ooc_regen.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 2,
+      "position": {
+        "column": 0,
+        "row": 2
+      },
+      "requirements": {
+        "minGuildLevel": 3,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemOocRegenSecondsPerHp": 8
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemOocRegenSecondsPerHp": 7
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_route_1",
+      "tree": "golem",
+      "name": "Пильний маршрут I",
+      "description": "Големи трохи краще шукають безпечні обходи.",
+      "effect": "+10% до ефективності безпечного обходу",
+      "icon": "homecraftguild:textures/gui/talents/golem_route.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 2
+      },
+      "requirements": {
+        "minGuildLevel": 3,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_health_2",
+      "tree": "golem",
+      "name": "Посилений каркас II",
+      "description": "Максимальне здоров’я големів зростає ще сильніше.",
+      "effect": "ще +5% до max HP големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_health.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 3
+      },
+      "requirements": {
+        "minGuildLevel": 4,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_health_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_regen_2",
+      "tree": "golem",
+      "name": "Самовідновлення II",
+      "description": "Големи ще швидше лікуються біля тотема.",
+      "effect": "ще +10% до лікування біля тотема",
+      "icon": "homecraftguild:textures/gui/talents/golem_regen.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 1,
+      "position": {
+        "column": 4,
+        "row": 3
+      },
+      "requirements": {
+        "minGuildLevel": 4,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_regen_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_night_watch",
+      "tree": "golem",
+      "name": "Нічна варта",
+      "description": "Големи краще тримаються біля учасників уночі та швидше займають точки перехоплення.",
+      "effect": "кращий нічний patrol/intercept",
+      "icon": "homecraftguild:textures/gui/talents/golem_night_watch.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 0,
+        "row": 4
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_route_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_speed_2",
+      "tree": "golem",
+      "name": "Марш варти II",
+      "description": "Гільдійні големи рухаються ще швидше.",
+      "effect": "ще +5% до швидкості големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_speed.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 5
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_speed_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_damage_2",
+      "tree": "golem",
+      "name": "Важкий удар II",
+      "description": "Гільдійні големи завдають ще більше шкоди.",
+      "effect": "ще +5% до шкоди големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_damage.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 4,
+        "row": 5
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_damage_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_out_of_combat_regen_2",
+      "tree": "golem",
+      "name": "Тиха регенерація II",
+      "description": "Позабойове відновлення големів стає швидшим.",
+      "effect": "1 HP кожні 5 секунд поза боєм",
+      "icon": "homecraftguild:textures/gui/talents/golem_ooc_regen.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 0,
+        "row": 6
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_out_of_combat_regen_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_guardian_matrix",
+      "tree": "golem",
+      "name": "Матриця захисту",
+      "description": "Комбіноване посилення каркаса й сили удару.",
+      "effect": "+5% HP і +5% шкоди големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_combo.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 4,
+        "row": 6
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_health_1",
+          "golem_damage_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_elite_command",
+      "tree": "golem",
+      "name": "Командирська ланка",
+      "description": "Елітний голем краще координує звичайних големів.",
+      "effect": "менше скупчення і кращий розподіл точок",
+      "icon": "homecraftguild:textures/gui/talents/golem_elite_command.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 0,
+        "row": 7
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_intercept_1",
+      "tree": "golem",
+      "name": "Перехоплення загрози",
+      "description": "Големи швидше реагують на тривогу біля учасників.",
+      "effect": "швидша реакція на напад",
+      "icon": "homecraftguild:textures/gui/talents/golem_intercept.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 1,
+        "row": 7
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_reactive_armor",
+      "tree": "golem",
+      "name": "Реактивна броня",
+      "description": "Комбіноване посилення живучості та лікування біля тотема.",
+      "effect": "+5% HP і +10% лікування біля тотема",
+      "icon": "homecraftguild:textures/gui/talents/golem_reactive_armor.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 7
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_health_2",
+          "golem_regen_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_crushing_force",
+      "tree": "golem",
+      "name": "Нищівна сила",
+      "description": "Големи сильніше б’ють hostile mobs.",
+      "effect": "+5% додаткової шкоди проти hostile mobs",
+      "icon": "homecraftguild:textures/gui/talents/golem_crushing_force.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 4,
+        "row": 7
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_damage_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_war_march",
+      "tree": "golem",
+      "name": "Бойовий марш",
+      "description": "Комбіноване посилення швидкості й перехоплення.",
+      "effect": "+5% швидкості і кращий response route",
+      "icon": "homecraftguild:textures/gui/talents/golem_war_march.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 2,
+        "row": 8
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_speed_2",
+          "golem_intercept_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_stone_heart",
+      "tree": "golem",
+      "name": "Кам’яне серце",
+      "description": "Фінальний комбінований талант для живучих големів.",
+      "effect": "+5% HP і +5% шкоди проти hostile mobs",
+      "icon": "homecraftguild:textures/gui/talents/golem_stone_heart.png",
+      "legacy": true,
+      "tier": 4,
+      "exclusiveGroup": "golem_capstone",
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 8
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_reactive_armor",
+          "golem_crushing_force"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "kind": "capstone"
+    },
+    {
+      "id": "golem_intercept_2",
+      "tree": "golem",
+      "name": "Перехоплення загрози II",
+      "description": "Големи швидше збираються біля учасників у небезпеці.",
+      "effect": "-10% до затримки повторного перенаведення цілі",
+      "icon": "homecraftguild:textures/gui/talents/golem_intercept.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 1,
+      "position": {
+        "column": 0,
+        "row": 9
+      },
+      "requirements": {
+        "minGuildLevel": 9,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_intercept_1",
+          "golem_night_watch"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemReacquireDelayMultiplier": 0.9
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_speed_3",
+      "tree": "golem",
+      "name": "Марш варти III",
+      "description": "Підвищення швидкості руху гільдійних големів.",
+      "effect": "+3% / +5% до швидкості големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_speed.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 2,
+      "position": {
+        "column": 1,
+        "row": 9
+      },
+      "requirements": {
+        "minGuildLevel": 8,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_speed_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemSpeedPct": 3
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemSpeedPct": 5
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_health_3",
+      "tree": "golem",
+      "name": "Посилений каркас III",
+      "description": "Ще вища витривалість усіх гільдійних големів.",
+      "effect": "+5% / +8% до max HP големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_health.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 2,
+      "position": {
+        "column": 2,
+        "row": 9
+      },
+      "requirements": {
+        "minGuildLevel": 8,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_health_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemMaxHpPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemMaxHpPct": 8
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_damage_3",
+      "tree": "golem",
+      "name": "Важкий удар III",
+      "description": "Големи завдають більше шкоди під час оборони.",
+      "effect": "+3% / +5% до шкоди големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_damage.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 2,
+      "position": {
+        "column": 4,
+        "row": 9
+      },
+      "requirements": {
+        "minGuildLevel": 8,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_damage_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemDamagePct": 3
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "golemDamagePct": 5
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "golem_citadel_core",
+      "tree": "golem",
+      "name": "Серце цитаделі",
+      "description": "Фінальна мобільна спеціалізація големів на перехопленні загроз.",
+      "effect": "+5% швидкості та +5% HP големів",
+      "icon": "homecraftguild:textures/gui/talents/golem_war_march.png",
+      "tier": 5,
+      "exclusiveGroup": "golem_capstone",
+      "legacy": false,
+      "maxRank": 1,
+      "position": {
+        "column": 1,
+        "row": 10
+      },
+      "requirements": {
+        "minGuildLevel": 10,
+        "minSpentInTree": 8
+      },
+      "dependencies": {
+        "allOf": [
+          "golem_war_march",
+          "golem_intercept_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "golemSpeedPct": 5,
+            "golemMaxHpPct": 5
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "kind": "capstone"
+    },
+    {
+      "id": "member_potion_1",
+      "tree": "member",
+      "name": "Травницькі знання I",
+      "description": "Зілля діють трохи довше на учасників гільдії.",
+      "effect": "+10% до тривалості зіль",
+      "icon": "homecraftguild:textures/gui/talents/member_potion.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 2,
+      "position": {
+        "column": 1,
+        "row": 0
+      },
+      "requirements": {
+        "minGuildLevel": 1,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberPotionDurationPct": 10
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberPotionDurationPct": 15
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_xp_1",
+      "tree": "member",
+      "name": "Навчання громади I",
+      "description": "Учасники гільдії отримують додатковий досвід незалежно від території.",
+      "effect": "+5% до досвіду",
+      "icon": "homecraftguild:textures/gui/talents/member_xp.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 3,
+      "position": {
+        "column": 2,
+        "row": 0
+      },
+      "requirements": {
+        "minGuildLevel": 1,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberXpBonusPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberXpBonusPct": 8
+          }
+        },
+        {
+          "rank": 3,
+          "bonuses": {
+            "memberXpBonusPct": 10
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_armor_1",
+      "tree": "member",
+      "name": "Майстерність обладунків I",
+      "description": "Вдягнені обладунки учасників стають ефективнішими.",
+      "effect": "+5% до броні",
+      "icon": "homecraftguild:textures/gui/talents/member_armor.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 2,
+      "position": {
+        "column": 2,
+        "row": 1
+      },
+      "requirements": {
+        "minGuildLevel": 2,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberArmorPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberArmorPct": 7
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_weapon_1",
+      "tree": "member",
+      "name": "Бойова підготовка I",
+      "description": "Зброя учасників завдає більше шкоди незалежно від території.",
+      "effect": "+5% до шкоди зброєю",
+      "icon": "homecraftguild:textures/gui/talents/member_weapon.png",
+      "legacy": true,
+      "tier": 1,
+      "maxRank": 2,
+      "position": {
+        "column": 3,
+        "row": 1
+      },
+      "requirements": {
+        "minGuildLevel": 2,
+        "minSpentInTree": 0
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberWeaponDamagePct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberWeaponDamagePct": 7
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_speed_1",
+      "tree": "member",
+      "name": "Легка хода I",
+      "description": "Учасники швидше пересуваються незалежно від території.",
+      "effect": "+5% до швидкості руху",
+      "icon": "homecraftguild:textures/gui/talents/member_speed.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 2,
+      "position": {
+        "column": 1,
+        "row": 2
+      },
+      "requirements": {
+        "minGuildLevel": 3,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberSpeedPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberSpeedPct": 7
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_jump_1",
+      "tree": "member",
+      "name": "Спритність I",
+      "description": "Учасники отримують трохи вищий стрибок незалежно від території.",
+      "effect": "+0.08 до сили стрибка",
+      "icon": "homecraftguild:textures/gui/talents/member_jump.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 2,
+      "position": {
+        "column": 2,
+        "row": 2
+      },
+      "requirements": {
+        "minGuildLevel": 3,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberJumpBonus": 0.08
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberJumpBonus": 0.12
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_night_vision",
+      "tree": "member",
+      "name": "Нічне бачення",
+      "description": "Учасники отримують безкінечний гільдійний ефект нічного бачення.",
+      "effect": "безкінечне Night Vision",
+      "icon": "homecraftguild:textures/gui/talents/member_night_vision.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 1,
+      "position": {
+        "column": 0,
+        "row": 3
+      },
+      "requirements": {
+        "minGuildLevel": 4,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [
+          "member_potion_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_potion_2",
+      "tree": "member",
+      "name": "Травницькі знання II",
+      "description": "Зілля діють ще довше на учасників гільдії.",
+      "effect": "ще +10% до тривалості зіль",
+      "icon": "homecraftguild:textures/gui/talents/member_potion.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 1,
+      "position": {
+        "column": 1,
+        "row": 3
+      },
+      "requirements": {
+        "minGuildLevel": 4,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [
+          "member_potion_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_xp_2",
+      "tree": "member",
+      "name": "Навчання громади II",
+      "description": "Учасники гільдії отримують ще більше досвіду.",
+      "effect": "ще +5% до досвіду",
+      "icon": "homecraftguild:textures/gui/talents/member_xp.png",
+      "legacy": true,
+      "tier": 2,
+      "maxRank": 1,
+      "position": {
+        "column": 2,
+        "row": 3
+      },
+      "requirements": {
+        "minGuildLevel": 4,
+        "minSpentInTree": 2
+      },
+      "dependencies": {
+        "allOf": [
+          "member_xp_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_speed_2",
+      "tree": "member",
+      "name": "Легка хода II",
+      "description": "Учасники ще швидше пересуваються незалежно від території.",
+      "effect": "ще +5% до швидкості руху",
+      "icon": "homecraftguild:textures/gui/talents/member_speed.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 1,
+        "row": 4
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "member_speed_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_deep_breath",
+      "tree": "member",
+      "name": "Подих глибин",
+      "description": "Учасники отримують безкінечне дихання під водою як гільдійний баф.",
+      "effect": "безкінечне Water Breathing",
+      "icon": "homecraftguild:textures/gui/talents/member_water_breathing.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 2,
+        "row": 4
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "member_potion_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_weapon_2",
+      "tree": "member",
+      "name": "Бойова підготовка II",
+      "description": "Зброя учасників завдає ще більше шкоди.",
+      "effect": "ще +5% до шкоди зброєю",
+      "icon": "homecraftguild:textures/gui/talents/member_weapon.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 4
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "member_weapon_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_field_training",
+      "tree": "member",
+      "name": "Польовий вишкіл",
+      "description": "Комбінований талант для розвитку і бою.",
+      "effect": "+5% досвіду і +5% шкоди зброєю",
+      "icon": "homecraftguild:textures/gui/talents/member_combo.png",
+      "legacy": true,
+      "tier": 3,
+      "maxRank": 1,
+      "position": {
+        "column": 4,
+        "row": 4
+      },
+      "requirements": {
+        "minGuildLevel": 5,
+        "minSpentInTree": 4
+      },
+      "dependencies": {
+        "allOf": [
+          "member_xp_1",
+          "member_weapon_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_fire_ward",
+      "tree": "member",
+      "name": "Вогняний захист",
+      "description": "Учасники отримують безкінечний гільдійний вогняний захист.",
+      "effect": "безкінечне Fire Resistance",
+      "icon": "homecraftguild:textures/gui/talents/member_fire_resistance.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 0,
+        "row": 5
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_potion_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_jump_2",
+      "tree": "member",
+      "name": "Спритність II",
+      "description": "Стрибок учасників стає трохи вищим.",
+      "effect": "ще +0.07 до сили стрибка",
+      "icon": "homecraftguild:textures/gui/talents/member_jump.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 1,
+        "row": 5
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_jump_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_armor_2",
+      "tree": "member",
+      "name": "Майстерність обладунків II",
+      "description": "Вдягнені обладунки учасників стають ще ефективнішими.",
+      "effect": "ще +5% до броні",
+      "icon": "homecraftguild:textures/gui/talents/member_armor.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 2,
+        "row": 5
+      },
+      "requirements": {
+        "minGuildLevel": 6,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_armor_1"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_speed_3",
+      "tree": "member",
+      "name": "Легка хода III",
+      "description": "Учасники значно швидше пересуваються незалежно від території.",
+      "effect": "ще +10% до швидкості руху",
+      "icon": "homecraftguild:textures/gui/talents/member_speed.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 1,
+        "row": 6
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_speed_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_resilience",
+      "tree": "member",
+      "name": "Стійкість громади",
+      "description": "Учасники краще тримають оборону незалежно від території.",
+      "effect": "-5% отриманої шкоди від hostile mobs",
+      "icon": "homecraftguild:textures/gui/talents/member_resilience.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 2,
+        "row": 6
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_armor_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_swift_strike",
+      "tree": "member",
+      "name": "Швидкий натиск",
+      "description": "Комбінований бойовий талант для мобільних учасників.",
+      "effect": "+5% швидкості і +5% шкоди зброєю",
+      "icon": "homecraftguild:textures/gui/talents/member_combo_speed.png",
+      "legacy": true,
+      "tier": 4,
+      "exclusiveGroup": "member_capstone",
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 6
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_speed_2",
+          "member_weapon_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "kind": "capstone"
+    },
+    {
+      "id": "member_vanguard_oath",
+      "tree": "member",
+      "name": "Клятва варти",
+      "description": "Комбінований оборонний талант для гільдійної варти.",
+      "effect": "+5% броні і ще -5% шкоди від hostile mobs",
+      "icon": "homecraftguild:textures/gui/talents/member_combo_defense.png",
+      "legacy": true,
+      "tier": 4,
+      "maxRank": 1,
+      "position": {
+        "column": 2,
+        "row": 7
+      },
+      "requirements": {
+        "minGuildLevel": 7,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_armor_2",
+          "member_resilience"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {}
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_potion_3",
+      "tree": "member",
+      "name": "Травницькі знання III",
+      "description": "Подальше вдосконалення продовжує дію звичайних зіль.",
+      "effect": "+5% / +10% до тривалості зіль",
+      "icon": "homecraftguild:textures/gui/talents/member_potion.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 2,
+      "position": {
+        "column": 0,
+        "row": 8
+      },
+      "requirements": {
+        "minGuildLevel": 8,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_potion_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberPotionDurationPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberPotionDurationPct": 10
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_xp_3",
+      "tree": "member",
+      "name": "Навчання громади III",
+      "description": "Поглиблена підготовка збільшує досвід учасників гільдії.",
+      "effect": "+5% / +8% до XP учасників",
+      "icon": "homecraftguild:textures/gui/talents/member_xp.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 2,
+      "position": {
+        "column": 1,
+        "row": 8
+      },
+      "requirements": {
+        "minGuildLevel": 8,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_xp_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberXpBonusPct": 5
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberXpBonusPct": 8
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_armor_3",
+      "tree": "member",
+      "name": "Майстерність обладунків III",
+      "description": "Додаткове посилення екіпірованих обладунків учасників.",
+      "effect": "+3% / +5% до броні",
+      "icon": "homecraftguild:textures/gui/talents/member_armor.png",
+      "tier": 4,
+      "legacy": false,
+      "maxRank": 2,
+      "position": {
+        "column": 4,
+        "row": 8
+      },
+      "requirements": {
+        "minGuildLevel": 8,
+        "minSpentInTree": 6
+      },
+      "dependencies": {
+        "allOf": [
+          "member_armor_2"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberArmorPct": 3
+          }
+        },
+        {
+          "rank": 2,
+          "bonuses": {
+            "memberArmorPct": 5
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "exclusiveGroup": null,
+      "kind": "passive"
+    },
+    {
+      "id": "member_elder_covenant",
+      "tree": "member",
+      "name": "Клятва старійшин",
+      "description": "Фінальна оборонна спеціалізація для членів гільдії.",
+      "effect": "-3% до шкоди від ворожих мобів та +3% до броні",
+      "icon": "homecraftguild:textures/gui/talents/member_vanguard_oath.png",
+      "tier": 5,
+      "exclusiveGroup": "member_capstone",
+      "legacy": false,
+      "maxRank": 1,
+      "position": {
+        "column": 3,
+        "row": 9
+      },
+      "requirements": {
+        "minGuildLevel": 10,
+        "minSpentInTree": 8
+      },
+      "dependencies": {
+        "allOf": [
+          "member_vanguard_oath",
+          "member_armor_3"
+        ],
+        "anyOf": []
+      },
+      "rankEffects": [
+        {
+          "rank": 1,
+          "bonuses": {
+            "memberMonsterDamageReductionPct": 3,
+            "memberArmorPct": 3
+          }
+        }
+      ],
+      "costPerRank": 1,
+      "kind": "capstone"
+    }
+  ]
+}

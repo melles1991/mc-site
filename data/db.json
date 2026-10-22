@@ -1,0 +1,3 @@
+{
+  "_deprecated": "Use users.json and runtime.json. This file is read once only for migration if split files are missing."
+}

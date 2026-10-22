@@ -1,0 +1,4 @@
+; Import ONLY into the new homecraft-mc.pp.ua zone in Cloudflare.
+; Origin from the supplied lihvodruida.pp.ua DNS export: 149.202.57.156.
+; Do not import NS/SOA from the old domain; use this zone's assigned nameservers.
+homecraft-mc.pp.ua. 1 IN A 149.202.57.156 ; cf_tags=cf-proxied:true

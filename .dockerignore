@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+tunnel.env
+config
+logs
+node_modules
+.git
+data/*
+!data/server-resource-packs/
