@@ -1,4 +1,22 @@
-; Import ONLY into the new homecraft-mc.pp.ua zone in Cloudflare.
-; Origin from the supplied lihvodruida.pp.ua DNS export: 149.202.57.156.
-; Do not import NS/SOA from the old domain; use this zone's assigned nameservers.
+;; HomeCraft DNS import for Cloudflare
+;; Import into the homecraft-mc.pp.ua zone ONLY.
+;; Website origin: 149.202.57.156
+;; SOA/NS are managed by Cloudflare: use the nameservers assigned to THIS zone.
+;; Check that the website A record is Proxied after importing.
+;; Minecraft remains at 51.83.184.222:25618; do not proxy it as HTTP.
+
+;; Website
 homecraft-mc.pp.ua. 1 IN A 149.202.57.156 ; cf_tags=cf-proxied:true
+
+;; This domain does not send or receive email
+homecraft-mc.pp.ua. 3600 IN MX 0 .
+homecraft-mc.pp.ua. 3600 IN TXT "v=spf1 -all"
+_dmarc.homecraft-mc.pp.ua. 3600 IN TXT "v=DMARC1; p=reject; adkim=s; aspf=s"
+
+;; No Google verification token copied from another domain.
+;; No guild/www aliases: their TLS and virtual hosts are not configured for HomeCraft.
+
+;; Optional: connect to the Java Minecraft server using homecraft-mc.pp.ua
+;; The Minecraft origin MUST remain DNS-only (grey cloud), NOT Cloudflare HTTP proxy.
+play.homecraft-mc.pp.ua. 300 IN A 51.83.184.222 ; cf_tags=cf-proxied:false
+_minecraft._tcp.homecraft-mc.pp.ua. 300 IN SRV 0 5 25618 play.homecraft-mc.pp.ua.
