@@ -8,3 +8,8 @@ node_modules
 .git
 data/*
 !data/server-resource-packs/
+
+deployment-backups
+.deploy.lock
+__pycache__
+*.pyc

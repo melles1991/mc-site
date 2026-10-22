@@ -1,110 +1,121 @@
-# HomeCraft R5.15 — homecraft-mc.pp.ua на VPS «Лігва друїда»
+# HomeCraft R5.15.1 — деплой на вашому VPS
 
-Сайт: **https://homecraft-mc.pp.ua**. VPS сайту: **149.202.57.156**
-(адреса зі наданого DNS-експорту lihvodruida.pp.ua). Minecraft: **51.83.184.222:25618**.
-HomeCraft має окремий Docker Compose project, папки даних і Nginx virtual host.
-Поточний сайт «Лігво друїда» не потрібно переносити чи замінювати.
-Пакет підготовлено для Linux VPS із Docker Engine + Compose plugin та наявним Nginx.
-Якщо сервер керується Apache/Caddy або панеллю, не запускайте publish: додайте домен
-і reverse proxy в цій панелі за наведеними нижче параметрами.
+Сайт https://homecraft-mc.pp.ua → VPS 149.202.57.156.
+Гра 51.83.184.222:25618 запускається окремо через Pterodactyl.
+Цей пакет адаптовано до /srv/mc-site, контейнера mistblossom-nginx-1,
+мережі mistblossom_edge, чинного bind-файла public-site.conf та named volume
+на /etc/letsencrypt. Системний Nginx встановлювати не потрібно.
 
-## 1. Cloudflare DNS
+## Оновлення наявного HomeCraft
 
-Додайте окрему зону `homecraft-mc.pp.ua` у свій Cloudflare account.
-Встановіть у реєстратора nameserver саме з НОВОЇ зони. Імена austin/dina
-в експорті належать старій зоні; для нової Cloudflare може призначити інші.
-Дочекайтеся Active та активного Edge Certificate для нового домену.
-Імпортуйте `cloudflare/homecraft-mc.pp.ua.zone` тільки в нову зону або створіть запис.
-Після імпорту перевірте, що Proxy status увімкнено:
+Не розпаковуйте ZIP поверх робочого data/config. Покладіть новий ZIP на VPS
+як /srv/HomeCraft-R5.15.1-SITE.zip та виконайте:
 
-| Тип | Ім'я | Значення | Proxy |
-| --- | --- | --- | --- |
-| A | @ | 149.202.57.156 | Proxied, помаранчева хмарка |
+```sh
+cd /srv/mc-site
+sudo python3 - /srv/HomeCraft-R5.15.1-SITE.zip <<'PY'
+from pathlib import Path
+import sys, zipfile
+root = Path.cwd().resolve()
+with zipfile.ZipFile(sys.argv[1]) as z:
+    for entry in z.infolist():
+        p = Path(entry.filename)
+        if p.is_absolute() or '..' in p.parts:
+            raise SystemExit('Небезпечний шлях у ZIP')
+        if p.parts and (p.parts[0] in {'data', 'config', 'logs', 'deployment-backups'}
+                       or p.name in {'.env', '.deploy.lock', 'compose.override.yaml', 'compose.override.yml'}):
+            continue
+        z.extract(entry, root)
+PY
+sh deploy.sh
+```
 
-Не копіюйте MX/TXT/google-verification зі старого домену й не змінюйте його DNS.
-Не залишайте суперечливих AAAA/CNAME для кореня нового домену.
-Підключення гри лишається без змін: 51.83.184.222:25618. Звичайний HTTP proxy
-Cloudflare не проксіює цей Minecraft-порт. Порт 25587 для сайта більше не використовується.
+Програмні файли оновлюються, чинні data/config/logs/.env/compose.override
+не замінюються. Пакет не містить бойових акаунтів, ключів чи баз.
+Старий невикористовуваний файл cloudflare/homecraft-mc.pp.ua.nginx.conf можна
+видалити: новий деплой його не читає.
 
-## 2. Перенесення чинного HomeCraft без втрати персонажів
+## Що виконує одна команда
 
-Підготуйте резервну копію, зупиніть старий HomeCraft SITE перед фінальним копіюванням.
-На VPS створіть окремий каталог, наприклад `/opt/homecraft-site`, і розпакуйте пакет.
-Перенесіть **увесь** старий `SITE/data`, включно з прихованими файлами, маркерами баз,
-реєстром characters, резервними копіями, ресурс-паками та завантаженнями.
-Не копіюйте лише users.json: історія власності/видалених ніків має зберегтися.
-Старий `.env` скопіюйте у `config/site.env` (створіть config) або в корінь як `.env`:
-setup перенесе його у config/site.env, тільки якщо ціль ще не існує.
-Збережіть наявний SERVER_SECRET/HOMECRAFT_SERVER_SECRET. Старі абсолютні шляхи до
-баз і завантажень замініть на відносні `data/...` з .env.example, зберігши самі файли.
-Адресу нового сайта, Secure cookies і каталог клієнтських JAR Compose встановлює автоматично.
-На ігровому сервері збережіть світ, UUID-файли та ownership ledger.
-Не запускайте одночасно старий і новий HomeCraft із незалежними копіями баз.
+1. Знаходить чинний Nginx, його мережу, named volume та bind-конфіг через Docker inspect.
+2. Збирає образ HomeCraft до зупинки сайта; потім зупиняє тільки HomeCraft і копіює
+   data/config у приватний deployment-backups. Ця копія може містити секрет — не публікуйте її.
+3. Готує права UID/GID 1000:1000 через одноразовий контейнер з обмеженими додатковими
+   capabilities. Робочий контейнер зберігає cap_drop: ALL.
+4. Підключає HomeCraft до mistblossom_edge з alias homecraft-web. Використовує
+   deployment/compose.edge.yaml; наявний compose.override.yaml з попередніх команд зберігається.
+5. Чекає готовності сайта, перевіряє JSON локально й запитом із контейнера Nginx.
+6. Перевіряє PEM, строк дії, домен і відповідність приватному ключу.
+7. Копіює сертифікат у named volume через тимчасовий контейнер із RW-доступом.
+   Сам Nginx залишається з read-only mount. Немає запису напряму у /var/lib/docker.
+8. Зберігає конфіг Nginx, оновлює тільки блок BEGIN HOMECRAFT / END HOMECRAFT
+   у змонтованому public-site.conf без заміни inode; повторний запуск не дублює домен.
+9. Виконує nginx -t і reload без перезапуску контейнера Nginx.
+   При помилці відновлює старий конфіг та попередні сертифікати й намагається зробити reload.
+10. Окремо перевіряє публічний HTTPS. При помилці Cloudflare команда повертає ненульовий код
+    і повідомляє, що origin уже застосовано, але публічний HTTPS не підтверджено.
 
-## 3. Запуск Node.js окремо від інших сайтів
+Всі команди використовують той самий набір Compose-файлів і project homecraft-site.
+Скрипт запитує sudo, якщо його запущено від ubuntu. Є блокування одночасного деплою.
+При невдалому setup скрипт намагається підняти HomeCraft повторно, але автоматичного
+відкату образа/баз немає: резервна копія data/config доступна для ручного відновлення.
+Не відновлюйте бази з резервної копії під час роботи сайта.
 
-У каталозі HomeCraft на VPS виконайте `sh deploy.sh setup`.
-Сайт слухає **127.0.0.1:3018** тільки на VPS; контейнер має внутрішній порт 3000.
-Якщо 3018 вже зайнятий, зупиніться: змініть його одночасно у compose.yaml та Nginx-конфігурації.
-Не завершуйте сторонній процес, щоб звільнити порт. Наявні конфігурації «Лігва» не змінюються.
-Дані/секрет/логи лежать у `data`, `config`, `logs` поза контейнером і переживають його заміну.
-Для нової інсталяції секрет генерується один раз автоматично.
+## Сертифікат, який ви вже створили
 
-Якщо це порожня інсталяція, створіть власного першого адміністратора ДО відкриття домену.
-На своєму комп'ютері: `ssh -L 3018:127.0.0.1:3018 USER@149.202.57.156`.
-Відкрийте `http://localhost:3018/register.html` і зареєструйте свій акаунт.
-Для перенесеної бази використовуйте старого адміністратора, новий не створюється.
+На VPS мають бути ці непорожні файли:
 
-## 4. HTTPS origin і Nginx
+- /etc/ssl/homecraft-mc.pp.ua/origin.pem — готовий сертифікат;
+- /etc/ssl/homecraft-mc.pp.ua/origin.key — відповідний приватний ключ.
 
-У Cloudflare → SSL/TLS → Origin Server → Create Certificate створіть Origin CA
-сертифікат для **homecraft-mc.pp.ua**. Збережіть на VPS:
+Деплой сам копіює їх у потрібне місце Nginx. Створювати сертифікат повторно не потрібно.
+При перевипуску замініть вихідні файли й виконайте sh deploy.sh publish.
+Ключі/сертифікати не включені у ZIP, не вводяться в командний рядок і не друкуються.
 
-- `/etc/ssl/homecraft-mc.pp.ua/origin.pem` — сертифікат;
-- `/etc/ssl/homecraft-mc.pp.ua/origin.key` — приватний ключ, права 600.
+## Cloudflare
 
-Каталог створіть з правами 700. Приватний ключ не надсилайте у чат.
-У Cloudflare → SSL/TLS → Overview оберіть **Full (strict)**. Не Flexible.
-На VPS виконайте `sudo sh deploy.sh publish`.
-Скрипт створює тільки новий vhost homecraft-mc.pp.ua, перевіряє nginx -t,
-і лише тоді робить reload; не перезапускає і не зупиняє інші сайти.
-Якщо файл нового домену вже існує, скрипт зупиняється і не перезаписує його.
-При помилці nginx -t новий файл прибирається, чинний Nginx не перезавантажується.
-Перегляньте конфліктні server_name у наявній конфігурації перед publish.
-Origin CA довіряє Cloudflare: прямий браузерний HTTPS на IP не є перевіркою сертифіката домену.
-VPS має приймати HTTP/HTTPS на 80/443; localhost:3018 відкривати у firewall не потрібно.
-Альтернатива для панелі: окремий домен, TLS Origin CA, proxy на http://127.0.0.1:3018,
-Host і X-Forwarded-Proto=https, ліміт body 34m; не змінювати virtual host «Лігва».
+Зона homecraft-mc.pp.ua: A @ → 149.202.57.156, Proxied; SSL/TLS Full (strict).
+Не копіюйте NS/MX/TXT іншого домену. Не ставте Access/browser challenge на серверний API.
+Cache Rule: Bypass для starts_with(http.request.uri.path, "/api/").
+Origin CA призначений для з'єднання Cloudflare→Nginx. Браузер перевіряє сертифікат Cloudflare.
+Деплой не змінює DNS чи налаштування Cloudflare — доступу до вашого account у нього немає.
 
-Перевірте https://homecraft-mc.pp.ua/api/health/ready (JSON 200), вхід та завантаження модів.
-У Cloudflare увімкніть Always Use HTTPS. Створіть Cache Rule Bypass для
-`starts_with(http.request.uri.path, "/api/")`; не застосовуйте Cache Everything до всього сайта.
-Не закривайте /api/ Cloudflare Access або browser challenge: це блокує Auth/Map/Guild.
+## Нова інсталяція / перенесення
 
-## 5. Підключення Minecraft без власного Startup
+Для чинного сайта збережіть увесь data, включно з characters.json, .initialized,
+прихованими файлами, історією власників і всіма ресурсами. Не створюйте нову порожню базу
+замість чинної. Старий HomeCraft .env перенесіть у config/site.env; .env «Лігва» не підходить.
+Якщо config/site.env відсутній, setup копіює кореневий .env, інакше зберігає чинний.
+Сайт генерує секрет тільки коли немає чинного валідного секрету.
 
-На новому домені увійдіть адміністратором → Адмінпанель → «Завантажити файл підключення».
-Завантажений `homecraft-connection.properties` покладіть у Minecraft `config/` через
-файловий менеджер панелі, замінивши шаблон. Файл містить секрет — не публікуйте його.
-Установіть 4 серверні JAR із Minecraft-пакета, прибравши тільки їхні старі версії.
-Натисніть звичайний Restart у панелі гри. Node.js та bat/sh на Minecraft-хості не потрібні.
-Auth/Guild/Map читають один файл; клієнт отримує адресу https://homecraft-mc.pp.ua.
-Лаунчер також має цей домен за замовчуванням; збережені користувачем налаштування
-лаунчера не перезаписуються — у старому профілі змініть адресу сайта один раз.
+Спочатку sh deploy.sh setup. Перший адміністратор реєструється через SSH port-forward:
+ssh -L 3018:127.0.0.1:3018 USER@149.202.57.156
+Після цього http://localhost:3018/register.html. Для перенесених даних використовуйте
+наявного адміністратора. Без адміністратора publish зупиниться, не відкриваючи новий vhost.
+Локальний порт залишається 127.0.0.1:3018. Контейнеру Nginx доступний homecraft-web:3000.
 
-## Оновлення та перевірки
+## Команди
 
-`sh deploy.sh status`, `sh deploy.sh logs`, `sh deploy.sh stop` стосуються тільки HomeCraft.
-Для наступного оновлення зупиніть HomeCraft, зробіть копію data/config, замініть програмні
-файли і повторіть setup. Повторний publish не потрібний, якщо Nginx не змінювався.
-Не замінюйте чинні data/config чистими папками з архіву.
-Node heap 128 МіБ, контейнер 256 МіБ / до 1 CPU. Ліміт не гарантує пропускної здатності.
-Для сайта на тому самому VPS слід перевірити вільну RAM/CPU з урахуванням «Лігва».
-Локальні Node/Java перевірки виконано; справжній VPS, Docker, Nginx, Cloudflare
-та запуск гри з цим доменом ще не перевірено. Доступу SSH/Cloudflare у цьому сеансі немає.
+- sh deploy.sh — setup та publish одним запуском;
+- sh deploy.sh setup — образ, права, резервна копія, запуск HomeCraft;
+- sh deploy.sh publish — сертифікат, Nginx і перевірка HTTPS;
+- sh deploy.sh check — локальний API, мережа, сертифікат, nginx -t;
+- sh deploy.sh status / logs / stop — тільки HomeCraft.
 
-Документація Cloudflare:
-https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/
-https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/
-https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/
-https://developers.cloudflare.com/fundamentals/reference/network-ports/
+Після успішного HTTPS: адмінпанель → завантажити homecraft-connection.properties →
+Minecraft config/ → звичайний Restart у Pterodactyl. Для NeoForge 26.3 потрібна Java 25;
+цей SITE-пакет не встановлює NeoForge, Java чи ігровий server.jar.
+
+Не видаляйте data/config і не використовуйте docker compose down -v для скидання баз.
+Деплой не запускає down, не перевстановлює Nginx і не змінює Compose-проєкт «Лігва».
+Під час майбутнього оновлення «Лігва» збережіть блок HOMECRAFT у public-site.conf;
+якщо оновлення прибрало його — повторіть sh deploy.sh publish.
+
+## Перевірено
+
+Окремі ручні тести перевіряють повторний деплой без дублювання, відмову від зміни
+невідомого vhost, відкат конфігурації/сертифікатів при помилці nginx -t/reload,
+набір capabilities і відсутність зміни read-only mount чинного Nginx.
+У цій сесії немає Docker daemon/доступу до VPS: інтеграція з реальним Nginx та
+Cloudflare потребує перевірки на сервері. Тести не включені в build або deploy.
+Резервні копії не видаляються автоматично — контролюйте вільне місце.

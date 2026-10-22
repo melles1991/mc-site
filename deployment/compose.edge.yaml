@@ -1,0 +1,10 @@
+services:
+  site:
+    networks:
+      default: {}
+      homecraft_edge:
+        aliases: [homecraft-web]
+networks:
+  homecraft_edge:
+    external: true
+    name: mistblossom_edge
