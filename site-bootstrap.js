@@ -12,7 +12,7 @@ function readEnv(text) {
 }
 function validSecret(value) {
   return typeof value === 'string' && value.length >= 32 && value.length <= 512
-    && !/[\x00-\x1f\x7f]/.test(value) && !/^(generated?-by-|generate-with-|change-|replace-|your-)/i.test(value);
+    && !/[\x00-\x20\x7f]/.test(value) && !/^(generated?-by-|generate-with-|change-|replace-|your-)/i.test(value);
 }
 function publicOrigin(value) {
   const url = new URL(value);
@@ -26,8 +26,12 @@ function bootstrap(root = __dirname, env = process.env) {
   const exists = fs.existsSync(file);
   const original = exists ? fs.readFileSync(file, 'utf8') : fs.readFileSync(path.join(root, '.env.example'), 'utf8');
   const values = readEnv(original);
-  const externalSecret = [env.SERVER_SECRET, env.HOMECRAFT_SERVER_SECRET].find(validSecret);
-  const storedSecret = [values.SERVER_SECRET, values.HOMECRAFT_SERVER_SECRET].find(validSecret);
+  const activeSecrets = [...new Set([env.SERVER_SECRET, env.HOMECRAFT_SERVER_SECRET].filter(validSecret))];
+  const storedSecrets = [...new Set([values.SERVER_SECRET, values.HOMECRAFT_SERVER_SECRET].filter(validSecret))];
+  if (activeSecrets.length > 1) throw new Error('SERVER_SECRET and HOMECRAFT_SERVER_SECRET conflict in the environment. Fix them before starting the site.');
+  if (storedSecrets.length > 1) throw new Error('SERVER_SECRET and HOMECRAFT_SERVER_SECRET conflict in site.env. Fix them before starting the site.');
+  const externalSecret = activeSecrets[0];
+  const storedSecret = storedSecrets[0];
   const secret = externalSecret || storedSecret || crypto.randomBytes(32).toString('hex');
   if ((!exists && !externalSecret) || (exists && !storedSecret && !externalSecret)) {
     let text = original.replace(/^\s*(?:HOMECRAFT_SERVER_SECRET|SERVER_SECRET)\s*=.*$/gm, '').trimEnd();

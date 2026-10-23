@@ -4,7 +4,7 @@
   const CONFIG = {
     canvasId: 'site-starfield',
     maxStars: 260,
-    minStars: 70,
+    minStars: 42,
     density: 7200,
     mobileDensity: 11800,
     spotlightRadius: 340,
@@ -83,7 +83,8 @@
     function desiredStarCount() {
       const isSmall = Math.min(window.innerWidth, window.innerHeight) < 720;
       const density = isSmall ? CONFIG.mobileDensity : CONFIG.density;
-      return Math.max(CONFIG.minStars, Math.min(CONFIG.maxStars, Math.floor((width * height) / density)));
+      const cap = isSmall ? 110 : CONFIG.maxStars;
+      return Math.max(CONFIG.minStars, Math.min(cap, Math.floor((width * height) / density)));
     }
 
     function resize() {
@@ -114,8 +115,12 @@
       ctx.fillStyle = '#ffffff';
     }
 
-    function frame() {
+    let previousFrame = 0;
+    function frame(timestamp = 0) {
       if (paused) return;
+      const interval = 1000 / (window.innerWidth < 720 ? 30 : 45);
+      if (timestamp - previousFrame < interval) { rafId = requestAnimationFrame(frame); return; }
+      previousFrame = timestamp;
       ctx.clearRect(0, 0, width, height);
       drawSpotlight();
       for (const star of stars) {

@@ -3,26 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Стан сервера — Home Craft</title>
-  <meta name="description" content="Онлайн, кількість гравців і технічний статус Home Craft.">
-  <link rel="stylesheet" href="/styles.css?v=41">
+  <title>Статус Minecraft сервера Home Craft — онлайн і версія</title>
+  <link rel="stylesheet" href="/styles.css?v=56"><link rel="stylesheet" href="/theme.css?v=56">
+
+  <meta name="description" content="Перевір онлайн сервера Home Craft, кількість гравців, стан підключення та актуальну версію Minecraft і NeoForge.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#0b111b">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link rel="canonical" href="https://homecraft-mc.pp.ua/status">
+  <meta property="og:locale" content="uk_UA">
+  <meta property="og:site_name" content="Home Craft">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Статус Minecraft сервера Home Craft — онлайн і версія">
+  <meta property="og:description" content="Перевір онлайн сервера Home Craft, кількість гравців, стан підключення та актуальну версію Minecraft і NeoForge.">
+  <meta property="og:url" content="https://homecraft-mc.pp.ua/status">
+  <meta name="twitter:card" content="summary">
 </head>
-<body>
+<body><a class="skip-link" href="#main-content">До основного вмісту</a>
 <header class="site-header">
   <div class="container navbar">
     <a class="brand" href="/"><img class="brand-logo" src="/assets/logo.svg" alt=""><span class="brand-name">Home Craft</span><span class="status-pill"><span class="status-dot js-server-dot offline"></span><span class="js-server-status">Офлайн</span></span></a>
-    <nav class="nav-links" aria-label="Головна навігація"><a href="/">Головна</a><a href="/support">Підтримати</a><a href="/map">Мапа світу</a><a href="/download" data-nav-download>Адони</a><a class="active" href="/status">Стан сервера</a><a class="js-auth-link" href="/login">Увійти</a></nav>
-    <a class="discord-btn" href="https://discord.gg/stNeSaVkhM" target="_blank" rel="noreferrer">Discord</a>
+    <button class="mobile-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Відкрити навігацію"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button><nav id="primary-navigation" class="nav-links" aria-label="Основна навігація"><a href="/">Головна</a><a href="/support">Підтримати</a><a href="/map">Мапа світу</a><a href="/download" data-nav-download>Адони</a><a class="active" href="/status">Стан сервера</a><a class="js-auth-link" href="/login">Увійти</a></nav>
+    <a class="discord-btn" href="https://discord.gg/stNeSaVkhM" target="_blank" rel="noopener noreferrer">Discord</a>
   </div>
 </header>
-<main>
+<main id="main-content">
   <section class="page-hero">
     <div class="container">
       <span class="season-pill">LIVE STATUS</span>
       <h1>Стан сервера</h1>
       <p>Окрема сторінка для онлайну, кількості гравців, IP та перевірки зв’язку між сайтом і Minecraft сервером.</p>
       <div class="status-actions">
-        <div class="ip-box"><span>⛓</span><span class="js-server-host">homecraft.local:25565</span><button class="copy-btn" data-copy="homecraft.local:25565" title="Скопіювати">⧉</button></div>
+        <div class="ip-box"><span>⛓</span><span class="js-server-host">51.83.184.222:25618</span><button class="copy-btn" data-copy="51.83.184.222:25618" title="Скопіювати">⧉</button></div>
         <a class="btn btn-outline btn-small" href="/download">Почати гру</a>
       </div>
     </div>
@@ -52,5 +65,6 @@
 
   <script src="/starfield.js?v=41"></script>
   <script src="/app.js?v=67"></script>
+  <script src="/site-shell.js?v=56"></script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /profile
+Disallow: /uploads/
+Disallow: /client-mods/
+Disallow: /server-resource-packs/
+
+Sitemap: https://homecraft-mc.pp.ua/sitemap.xml

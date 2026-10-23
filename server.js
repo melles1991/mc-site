@@ -58,7 +58,8 @@ const RUNTIME_DB_FILE = path.resolve(ROOT, process.env.HOMECRAFT_RUNTIME_DB_FILE
 const CHARACTER_DB_FILE = path.resolve(ROOT, process.env.HOMECRAFT_CHARACTERS_DB_FILE || path.join('data', 'characters.json'));
 const characterRegistry = new CharacterRegistry(CHARACTER_DB_FILE);
 const SERVER_SECRET = process.env.SERVER_SECRET || process.env.HOMECRAFT_SERVER_SECRET || 'change-this-secret-before-public-use';
-const COOKIE_SECURE = String(process.env.COOKIE_SECURE || 'false').toLowerCase() === 'true';
+const COOKIE_SECURE = PUBLIC_SITE_URL.startsWith('https://') || String(process.env.COOKIE_SECURE || 'false').toLowerCase() === 'true';
+const TRUST_PROXY = String(process.env.HOMECRAFT_TRUST_PROXY || 'false').toLowerCase() === 'true';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 const MC_SESSION_TTL_MS = 1000 * 60 * 20;
 const SERVER_HEARTBEAT_TTL_MS = Number(process.env.HOMECRAFT_SERVER_HEARTBEAT_TTL_MS || 90_000);
@@ -194,7 +195,12 @@ function requestId() {
 }
 
 function clientIp(req) {
-  return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  // Do not trust an arbitrary X-Forwarded-For sent by a direct internet client.
+  // Only enable behind a trusted reverse proxy which OVERWRITES that header.
+  const direct = String(req.socket.remoteAddress || 'unknown');
+  if (!TRUST_PROXY) return direct;
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return net.isIP(forwarded) ? forwarded : direct;
 }
 
 function describeBuffer(buffer) {
@@ -241,6 +247,7 @@ const MIME = {
   '.webp': 'image/webp',
   '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
   '.zip': 'application/zip'
 };
 
@@ -1032,7 +1039,7 @@ function send(res, status, body, headers = {}) {
   res.writeHead(status, {
     'Content-Type': 'text/plain; charset=utf-8',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
     ...headers
   });
   res.end(body);
@@ -1043,7 +1050,7 @@ function json(res, status, data, headers = {}) {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
     ...headers
   });
   res.end(JSON.stringify(data));
@@ -1060,7 +1067,7 @@ function parseCookies(header = '') {
     if (index < 0) continue;
     const key = pair.slice(0, index).trim();
     const val = pair.slice(index + 1).trim();
-    if (key) out[key] = decodeURIComponent(val);
+    if (key) { try { out[key] = decodeURIComponent(val); } catch { /* ignore malformed cookies */ } }
   }
   return out;
 }
@@ -1256,7 +1263,7 @@ function serveUpload(req, res, urlPath) {
     'Content-Type': 'image/png',
     'Cache-Control': 'public, max-age=300',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin'
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
   });
   fs.createReadStream(filePath).pipe(res);
 }
@@ -1440,7 +1447,7 @@ function serveResourcePack(req, res, urlPath) {
     'Content-Disposition': `attachment; filename="${path.basename(filePath)}"`,
     'Cache-Control': 'public, max-age=3600',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin'
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
   });
   fs.createReadStream(filePath).pipe(res);
 }
@@ -1830,7 +1837,7 @@ function serveClientMod(req, res, urlPath) {
     'Content-Disposition': `attachment; filename="${path.basename(filePath)}"`,
     'Cache-Control': 'public, max-age=300',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin'
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
   });
   fs.createReadStream(filePath).pipe(res);
 }
@@ -2004,12 +2011,16 @@ function getAuth(req, db) {
 }
 
 function getIp(req) {
-  return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+  return clientIp(req);
 }
 
 function limited(req, bucket, max = 12, windowMs = 60_000) {
   const key = `${bucket}:${getIp(req)}`;
   const now = Date.now();
+  if (rateMap.size > 10000) {
+    for (const [key, state] of rateMap) if (state.reset < now) rateMap.delete(key);
+    while (rateMap.size > 15000) rateMap.delete(rateMap.keys().next().value);
+  }
   const state = rateMap.get(key) || { count: 0, reset: now + windowMs };
   if (state.reset < now) {
     state.count = 0;
@@ -2029,12 +2040,15 @@ function requireSecret(req) {
 }
 
 function safeStaticPath(urlPath) {
-  let route = decodeURIComponent(urlPath.split('?')[0]);
+  let route;
+  try { route = decodeURIComponent(urlPath.split('?')[0]); }
+  catch { return null; }
   if (route === '/') route = '/index.html';
-  const cleanRoutes = new Set(['/support', '/map', '/status', '/login', '/register', '/profile', '/download', '/admin']);
+  const cleanRoutes = new Set(['/support', '/map', '/status', '/login', '/register', '/profile', '/download', '/admin', '/news']);
   if (cleanRoutes.has(route)) route = `${route}.html`;
-  const requested = path.normalize(path.join(PUBLIC_DIR, route));
-  if (!requested.startsWith(PUBLIC_DIR)) return null;
+  const requested = path.resolve(PUBLIC_DIR, '.' + route);
+  const relative = path.relative(PUBLIC_DIR, requested);
+  if (relative.startsWith('..') || path.isAbsolute(relative) || relative.split(path.sep).some(part => part.startsWith('.'))) return null;
   return requested;
 }
 
@@ -2043,7 +2057,7 @@ function sendHtml(res, status, html, headers = {}) {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
     ...headers
   });
   res.end(html);
@@ -2067,10 +2081,12 @@ function serveStatic(req, res, urlPath) {
   const filePath = safeStaticPath(urlPath);
   if (!filePath || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) return notFound(res);
   const ext = path.extname(filePath).toLowerCase();
+  const isPrivate = new Set(['login.html','register.html','profile.html','admin.html','news.html']).has(path.basename(filePath));
   const headers = {
     'Content-Type': MIME[ext] || 'application/octet-stream',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin'
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    ...(isPrivate ? { 'X-Robots-Tag': 'noindex, nofollow, noarchive' } : {})
   };
   if (['.html', '.css', '.js'].includes(ext)) {
     headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
@@ -2125,6 +2141,21 @@ async function handleApi(req, res, pathname) {
   }
   try {
     db = readDb(); cleanupExpired(db); auth = getAuth(req, db);
+    if (method === 'GET' && pathname === '/api/admin/minecraft/connection/status') {
+      if (!auth.user || auth.user.role !== 'admin') return json(res, 403, { ok: false, error: 'Доступ лише для адміністратора' });
+      res.setHeader('Cache-Control', 'no-store, private');
+      return json(res, 200, {
+        ok: true,
+        siteUrl: process.env.PUBLIC_SITE_URL || process.env.HOMECRAFT_PUBLIC_SITE_URL || '',
+        serverSecretConfigured: SERVER_SECRET.length >= 32
+          && !['change-this-secret-before-public-use', 'generated-by-setup-homecraft-config'].includes(SERVER_SECRET),
+        minecraftHost: getMinecraftHost(),
+        // Server cannot verify a remote Minecraft configuration on its own.
+        minecraftPaired: null,
+        nextStep: 'Завантажити приватний homecraft-connection.properties з адмінпанелі сайту та встановити на Minecraft-сервер.'
+      });
+    }
+
     if (method === 'GET' && pathname === '/api/admin/minecraft/connection') {
       if (!auth.user || auth.user.role !== 'admin') return json(res, 403, { ok: false, error: 'Доступ лише для адміністратора' });
       let text;
@@ -2624,13 +2655,13 @@ async function handleApi(req, res, pathname) {
     }
 
     if (method === 'POST' && pathname === '/api/minecraft/session/validate') {
-      if (!requireSecret(req)) return json(res, 401, { ok: false, error: 'Некоректний serverSecret' });
+      if (!requireSecret(req)) return json(res, 401, { ok: false, errorCode: 'SERVER_SECRET_INVALID', error: 'Некоректний serverSecret' });
       const body = await freshBody();
       const token = String(body.token || '').trim();
       const nick = String(body.minecraftNick || body.nick || '').trim();
       const uuid = String(body.minecraftUuid || body.uuid || '').trim();
       const session = db.minecraftSessions.find(s => s.token === token && Number(s.expiresAt) > Date.now());
-      if (!session) return json(res, 401, { ok: false, allowed: false, error: 'Session expired or invalid' });
+      if (!session) return json(res, 401, { ok: false, allowed: false, errorCode: 'TOKEN_EXPIRED', error: 'Session expired or invalid' });
       const user = db.users.find(u => u.id === session.userId);
       const identity = characterRegistry.active(db.identities, user);
       const nickOk = identity && nick === identity.nick && session.minecraftNick === identity.nick;
@@ -2652,6 +2683,7 @@ async function handleApi(req, res, pathname) {
       return json(res, allowed ? 200 : 403, {
         ok: allowed,
         allowed,
+        ...(!allowed ? { errorCode: 'IDENTITY_NOT_ALLOWED' } : {}),
         accountId: allowed ? user.id : '',
         characterId: allowed ? identity.id : '',
         legacyVerified: allowed && identity.legacyVerified === true,
@@ -2733,10 +2765,51 @@ async function handleApi(req, res, pathname) {
   }
 }
 
+// Central headers apply to API, streaming downloads, error responses and HTML.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'sha256-pfFqfY2HBAoKt55AsFP4LwrZ9Axy3uPaSPRoHoZbF08='",
+  "style-src 'self' 'unsafe-inline'", // inline grid positions in guild talents (scoped, validated values)
+  "img-src 'self' data: blob: https:", // user-hosted skins/capes may use HTTPS
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "frame-src 'none'",
+  "frame-ancestors 'none'",
+  "base-uri 'none'",
+  "form-action 'self'"
+].join('; ');
+function applySecurityHeaders(res) {
+  res.setHeader('Content-Security-Policy', CSP);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  if (PUBLIC_SITE_URL.startsWith('https://')) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000'); // no includeSubDomains/preload until audited
+  }
+}
+function browserOriginAllowed(req) {
+  const supplied = req.headers.origin;
+  if (!supplied) return true; // Minecraft/Java services do not send Origin
+  try {
+    const origin = new URL(String(supplied)).origin;
+    const publicOrigin = new URL(PUBLIC_SITE_URL).origin;
+    if (origin === publicOrigin) return true;
+    // Localhost/LAN preview is permitted only when the configured origin is HTTP.
+    return publicOrigin.startsWith('http://') && origin === `http://${req.headers.host}`;
+  } catch { return false; }
+}
+
 const server = http.createServer((req, res) => {
+  applySecurityHeaders(res);
+  if (!['GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS'].includes(req.method)) return send(res, 405, 'Method Not Allowed', { Allow: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS' });
+  if (!['GET','HEAD','OPTIONS'].includes(req.method) && (req.headers['sec-fetch-site'] === 'cross-site' || !browserOriginAllowed(req))) return json(res, 403, { ok: false, error: 'Запит з іншого сайту заблоковано (Origin)' });
   req.homecraftRequestId = requestId();
   const started = Date.now();
-  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  let url;
+  try { url = new URL(req.url, `http://${req.headers.host || 'localhost'}`); }
+  catch { return send(res, 400, 'Bad Request'); }
   const finishLog = () => {
     const pathForLog = url.pathname.startsWith('/uploads/') ? '/uploads/*' : url.pathname;
     logLine(url.pathname.startsWith('/api/') ? 'info' : 'debug', 'HTTP request', {
@@ -2750,8 +2823,17 @@ const server = http.createServer((req, res) => {
     });
   };
   res.on('finish', finishLog);
-  if (req.method === 'GET' && url.pathname === '/api/health/ready') return json(res, 200, { ok: true, ready: true });
+  if (['GET','HEAD'].includes(req.method) && url.pathname === '/api/health/ready') return json(res, 200, { ok: true, ready: true });
   if (url.pathname.startsWith('/api/')) return handleApi(req, res, url.pathname);
+  // Canonicalize public pages rather than offering duplicate .html URLs.
+  if (['GET','HEAD'].includes(req.method)) {
+    const route = url.pathname.match(/^\/(index|support|map|status|login|register|profile|download|news)\.html$/);
+    if (route) {
+      res.writeHead(301, { Location: (route[1] === 'index' ? '/' : '/' + route[1]) + url.search, 'Cache-Control': 'public, max-age=3600' });
+      return res.end();
+    }
+  }
+  if (!['GET','HEAD'].includes(req.method) && !url.pathname.startsWith('/api/')) return send(res, 405, 'Method Not Allowed', { Allow: 'GET, HEAD' });
   if (url.pathname === '/admin' || url.pathname === '/admin.html') return serveAdminPage(req, res);
   if (url.pathname.startsWith('/uploads/')) return serveUpload(req, res, url.pathname);
   if (url.pathname.startsWith('/server-resource-packs/')) return serveResourcePack(req, res, url.pathname);

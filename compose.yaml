@@ -14,6 +14,7 @@ services:
       HOMECRAFT_MC_HOST: 51.83.184.222:25618
       HOMECRAFT_SERVER_MODS_DIR: /app/client-mods
       COOKIE_SECURE: "true"
+      HOMECRAFT_TRUST_PROXY: "true" # nginx must overwrite X-Forwarded-For with $remote_addr
     ports:
       - "127.0.0.1:3018:3000"
     volumes:

@@ -1,6 +1,10 @@
+> **R5.15.6 SITE:** редизайн, мобільна навігація, SEO та HTTP hardening. Див. `HOMECRAFT_R5_15_6_SITE_UA.md`. Це оновлення не змінює Java-моди.
+
+> **R5.15.3:** оновлено клієнтські JAR і додано автоматичне керування конфігураціями. Див. `HOTFIX_R5_15_3_UA.md`.
+
 > **R5.15.2**: авторизацію виправлено після падіння при 60-секундному тайм-ауті. Див. `HOTFIX_R5_15_2_UA.md`.
 
-# HomeCraft R5.15.1 — деплой на вашому VPS
+# HomeCraft R5.15.6 — сайт, деплой на VPS
 
 Сайт https://homecraft-mc.pp.ua → VPS 149.202.57.156.
 Гра 51.83.184.222:25618 запускається окремо через Pterodactyl.
@@ -11,11 +15,11 @@
 ## Оновлення наявного HomeCraft
 
 Не розпаковуйте ZIP поверх робочого data/config. Покладіть новий ZIP на VPS
-як /srv/HomeCraft-R5.15.1-SITE.zip та виконайте:
+як /srv/HomeCraft-R5.15.6-SITE.zip та виконайте:
 
 ```sh
 cd /srv/mc-site
-sudo python3 - /srv/HomeCraft-R5.15.1-SITE.zip <<'PY'
+sudo python3 - /srv/HomeCraft-R5.15.6-SITE.zip <<'PY'
 from pathlib import Path
 import sys, zipfile
 root = Path.cwd().resolve()
@@ -121,3 +125,7 @@ Minecraft config/ → звичайний Restart у Pterodactyl. Для NeoForge
 У цій сесії немає Docker daemon/доступу до VPS: інтеграція з реальним Nginx та
 Cloudflare потребує перевірки на сервері. Тести не включені в build або deploy.
 Резервні копії не видаляються автоматично — контролюйте вільне місце.
+
+
+## R5.15.5
+Докладніше: `HOTFIX_R5_15_5_UA.md`.

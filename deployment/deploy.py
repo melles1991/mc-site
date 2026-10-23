@@ -91,7 +91,10 @@ def validate_cert():
         if not p.is_file() or not p.stat().st_size:
             raise RuntimeError(f'Missing certificate/key: {p}')
     run(['openssl', 'x509', '-in', cert, '-noout', '-checkend', '86400'])
-    matched = run(['openssl', 'x509', '-in', cert, '-noout', '-checkhost', DOMAIN], True)
+    try:
+        matched = run(['openssl', 'x509', '-in', cert, '-noout', '-checkhost', DOMAIN], True)
+    except subprocess.CalledProcessError as error:
+        raise RuntimeError('Certificate does not cover homecraft-mc.pp.ua.') from error
     if f'Hostname {DOMAIN} does match certificate' not in matched:
         raise RuntimeError('Certificate does not cover homecraft-mc.pp.ua.')
     a = run(['openssl', 'x509', '-in', cert, '-pubkey', '-noout'], True)
