@@ -773,6 +773,8 @@ async function initAdmin() {
         <h3>Підключення окремого Minecraft-сервера</h3>
         <p>Коли PUBLIC_SITE_URL налаштовано, завантаж файл і поклади його в папку config ігрового сервера. Після цього перезапусти Minecraft звичайною кнопкою панелі.</p>
         <button type="button" class="btn btn-primary" id="download-minecraft-connection">Завантажити файл підключення</button>
+        <button type="button" class="btn btn-outline" id="check-minecraft-connection">Перевірити зв’язок</button>
+        <p class="form-message" id="minecraft-connection-status" role="status" aria-live="polite"></p>
         <p class="form-message" id="minecraft-connection-message"></p>
         <p><small>Файл містить серверний секрет. Зберігай його лише в config свого Minecraft-сервера.</small></p>
       </div>
@@ -804,6 +806,24 @@ async function initAdmin() {
       await api('/api/admin/user/update', { method: 'POST', body: JSON.stringify(payload) });
       initAdmin();
     }));
+    const checkConnectionButton = $('#check-minecraft-connection', root);
+    async function updateConnectionStatus() {
+      const status = $('#minecraft-connection-status', root);
+      if (!status || !checkConnectionButton) return;
+      checkConnectionButton.disabled = true;
+      status.textContent = 'Перевіряємо зв’язок із сервером…';
+      try {
+        const result = await api('/api/admin/minecraft/connection/status');
+        status.textContent = result.minecraftPaired
+          ? 'Зв’язок працює: сайт отримує статус Minecraft-сервера.'
+          : result.serverSecretConfigured
+            ? 'Немає свіжого статусу Minecraft. Перевір, чи сервер запущено. Після заміни файлу підключення перезапусти Minecraft-сервер.'
+            : 'Серверний секрет сайту не налаштовано. Запусти сайт через npm start і завантаж новий файл підключення.';
+      } catch (error) { status.textContent = 'Не вдалося перевірити зв’язок: ' + error.message; }
+      finally { checkConnectionButton.disabled = false; }
+    }
+    checkConnectionButton?.addEventListener('click', updateConnectionStatus);
+    void updateConnectionStatus();
     const connectionButton = $('#download-minecraft-connection', root);
     connectionButton?.addEventListener('click', async () => {
       const message = $('#minecraft-connection-message', root);
@@ -816,7 +836,7 @@ async function initAdmin() {
         const link = document.createElement('a'); link.href = url; link.download = 'homecraft-connection.properties';
         document.body.append(link); link.click(); link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        message.textContent = 'Поклади файл у config Minecraft-сервера та перезапусти гру.';
+        message.textContent = 'Поклади файл у config Minecraft-сервера та перезапусти Minecraft-сервер у панелі.';
       } catch (error) { message.textContent = error.message; }
       finally { connectionButton.disabled = false; }
     });

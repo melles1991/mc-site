@@ -56,6 +56,62 @@
   let textureInvalidateTimer = 0;
   let needsAnotherDraw = false;
 
+  const npcLayer = document.createElement('div'); npcLayer.className = 'map-npc-layer'; wrap.append(npcLayer);
+  const npcTooltip = document.createElement('div'); npcTooltip.className = 'map-npc-tooltip'; npcTooltip.id = 'map-npc-tooltip'; npcTooltip.setAttribute('role','tooltip'); npcTooltip.hidden = true; wrap.append(npcTooltip);
+  const npcButtons = new Map();
+  let npcSignature = '', tooltipNpc = null, tooltipPinned = false, activeDimension = '', requestedNpc = new URLSearchParams(location.search).get('npc');
+  const dimSelect = document.getElementById('map-dimension');
+  const npcList = document.getElementById('map-npc-list');
+  const npcToggle = document.getElementById('map-npcs-visible');
+  const dimNames = {'minecraft:overworld':'Звичайний світ','minecraft:the_nether':'Незер','minecraft:the_end':'Енд'};
+  const costText = offer => offer.costs.map(c=>`${c.count} ${c.itemId==='minecraft:emerald'?'смарагд.':c.itemId.split(':').pop().replace(/_/g,' ')}`).join(' + ');
+  function focusNpc(npc) {
+    if(npcToggle)npcToggle.checked=true;
+    activeDimension = npc.position.dimension; if(dimSelect)dimSelect.value=activeDimension;
+    view.centerX=npc.position.x; view.centerZ=npc.position.z; view.scale=Math.max(5,view.scale);
+    tooltipPinned=true; tooltipNpc=npc.id; showNpcTooltip(npc); lastInfoSignature='';renderInfo(state||{});requestDraw();
+  }
+  function showNpcTooltip(npc) {
+    tooltipNpc=npc.id;
+    npcTooltip.innerHTML=`<span class="eyebrow">${npc.kind==='system'?'Гільдійний NPC':'Торговець'}</span><strong>${esc(npc.name)}</strong><small>X ${fmt(npc.position.x)} · Y ${fmt(npc.position.y)} · Z ${fmt(npc.position.z)}</small>${(npc.offers||[]).slice(0,3).map(o=>`<p><span>${esc(o.name)} ×${o.count}</span><b>${esc(costText(o))}</b></p>`).join('')}${npc.offerCount>3?`<small>Ще ${npc.offerCount-3} пропозицій у каталозі</small>`:''}${state?.npcState?.stale?'<small>Збережена позиція · очікуємо оновлення</small>':''}`;
+    npcTooltip.hidden=false;positionNpcTooltip(npc);
+  }
+  function positionNpcTooltip(npc) {
+    const p=worldToScreen(npc.position.x,npc.position.z);
+    if(p.x<0||p.x>width||p.y<0||p.y>height||npc.position.dimension!==activeDimension){npcTooltip.hidden=true;return;}
+    npcTooltip.style.left=clamp(p.x+20,8,Math.max(8,width-290))+'px';
+    npcTooltip.style.top=clamp(p.y+18,8,Math.max(8,height-npcTooltip.offsetHeight-12))+'px';
+  }
+  function renderNpcs(map) {
+    const npcs=Array.isArray(map.npcState?.npcs)?map.npcState.npcs:[];
+    const dimensions=[...new Set([...Object.keys(dimNames),map.spawn?.dimension||'minecraft:overworld',...tileList.map(t=>t.dimension),...npcs.map(n=>n.position.dimension),...(map.players||[]).map(p=>p.dimension).filter(Boolean)])];
+    if(!activeDimension)activeDimension=map.spawn?.dimension||'minecraft:overworld';
+    if(dimSelect && dimSelect.dataset.options!==dimensions.join('|')){dimSelect.innerHTML=dimensions.map(d=>`<option value="${esc(d)}">${esc(dimNames[d]||d)}</option>`).join('');dimSelect.dataset.options=dimensions.join('|');dimSelect.value=activeDimension;}
+    if(requestedNpc){const target=npcs.find(n=>n.id===requestedNpc);if(target){requestedNpc=null;focusNpc(target);}}
+    const signature=JSON.stringify(npcs);
+    if(signature!==npcSignature){
+      npcSignature=signature;npcLayer.replaceChildren();npcButtons.clear();
+      for(const npc of npcs){
+        const button=document.createElement('button');button.type='button';button.className='map-npc-marker '+npc.kind;button.textContent=npc.kind==='system'?'⚑':'◇';button.setAttribute('aria-label',npc.name+' — '+(npc.kind==='system'?'гільдійний NPC':'торговець'));button.setAttribute('aria-describedby','map-npc-tooltip');
+        button.addEventListener('pointerenter',()=>{if(!tooltipPinned)showNpcTooltip(npc);});
+        button.addEventListener('pointerleave',()=>{if(!tooltipPinned)npcTooltip.hidden=true;});
+        button.addEventListener('focus',()=>showNpcTooltip(npc));
+        button.addEventListener('blur',()=>{if(!tooltipPinned)npcTooltip.hidden=true;});
+        button.addEventListener('click',e=>{e.stopPropagation();if(tooltipPinned&&tooltipNpc===npc.id){tooltipPinned=false;tooltipNpc=null;npcTooltip.hidden=true;}else{tooltipPinned=true;showNpcTooltip(npc);}});
+        npcLayer.append(button);npcButtons.set(npc.id,button);
+      }
+      if(npcList){npcList.innerHTML=npcs.length?npcs.map(n=>`<div class="map-npc-row"><button type="button" data-focus-npc="${esc(n.id)}"><strong>${esc(n.name)}</strong><small>${esc(dimNames[n.position.dimension]||n.position.dimension)} · ${n.offerCount} пропозицій</small></button>${n.offerCount?`<a href="/catalog?vendor=${encodeURIComponent(n.id)}" aria-label="Каталог: ${esc(n.name)}">↗</a>`:''}</div>`).join(''):'<p class="map-empty">Позиції NPC з’являться після синхронізації з ігровим сервером.</p>';}
+      if(tooltipPinned){const current=npcs.find(n=>n.id===tooltipNpc);if(current)showNpcTooltip(current);else{tooltipPinned=false;tooltipNpc=null;npcTooltip.hidden=true;}}else npcTooltip.hidden=true;
+    }
+    for(const npc of npcs){const b=npcButtons.get(npc.id),p=worldToScreen(npc.position.x,npc.position.z);b.hidden=npcToggle?.checked===false||npc.position.dimension!==activeDimension||p.x<0||p.x>width||p.y<0||p.y>height;b.style.left=p.x+'px';b.style.top=p.y+'px';}
+    if(tooltipNpc&&!npcTooltip.hidden){const npc=npcs.find(n=>n.id===tooltipNpc);if(npc&&npcToggle?.checked!==false)positionNpcTooltip(npc);else npcTooltip.hidden=true;}
+    const note=document.getElementById('map-npc-note');if(note)note.textContent=map.npcState?.stale?'Збережені позиції · очікуємо оновлення':npcs.length?`${npcs.length} NPC · наведи курсор або торкнися мітки`:'Очікуємо першу синхронізацію NPC';
+  }
+  npcList?.addEventListener('click',e=>{const b=e.target.closest('[data-focus-npc]');if(b){const n=state?.npcState?.npcs?.find(n=>n.id===b.dataset.focusNpc);if(n)focusNpc(n);}});
+  dimSelect?.addEventListener('change',()=>{activeDimension=dimSelect.value;tooltipPinned=false;npcTooltip.hidden=true;const first=state?.npcState?.npcs?.find(n=>n.position.dimension===activeDimension),tile=tileList.find(t=>t.dimension===activeDimension);view.centerX=first?.position.x??(tile?(tile.tx+.5)*tile.size:0);view.centerZ=first?.position.z??(tile?(tile.tz+.5)*tile.size:0);lastInfoSignature='';renderInfo(state||{});requestDraw();});
+  npcToggle?.addEventListener('change',()=>{npcTooltip.hidden=true;requestDraw();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){tooltipPinned=false;tooltipNpc=null;npcTooltip.hidden=true;}});
+
   function fmt(value) {
     const n = Number(value);
     return Number.isFinite(n) ? String(Math.round(n)) : '0';
@@ -135,6 +191,7 @@
 
   function resetView(map, keepZoom = false) {
     const spawn = map?.spawn || { x: 0, z: 0, radius: 96 };
+    activeDimension=spawn.dimension||'minecraft:overworld';if(dimSelect)dimSelect.value=activeDimension;
     view.centerX = Number(spawn.x || 0);
     view.centerZ = Number(spawn.z || 0);
     if (!keepZoom) {
@@ -396,6 +453,7 @@
     const bounds = visibleWorldBounds();
     const out = [];
     for (const tile of tileList) {
+      if(tile.dimension!==activeDimension)continue;
       const x0 = tile.tx * tile.size;
       const z0 = tile.tz * tile.size;
       const x1 = x0 + tile.size;
@@ -428,7 +486,7 @@
       ctx.fillText('Очікуємо чанки, які прогрузять гравці...', width / 2, height / 2);
       ctx.font = '600 11px system-ui, sans-serif';
       ctx.fillStyle = 'rgba(255,255,255,.32)';
-      ctx.fillText('Якщо гравець онлайн, перевір config/homecraft-map.properties і спільний serverSecret.', width / 2, height / 2 + 18);
+      ctx.fillText('Досліджуй світ, щоб відкрити нові ділянки мапи.', width / 2, height / 2 + 18);
       ctx.textAlign = 'left';
       return;
     }
@@ -520,6 +578,7 @@
 
   function drawSpawn(map) {
     const spawn = map.spawn || { x: 0, y: 64, z: 0, radius: 96 };
+    if((spawn.dimension||'minecraft:overworld')!==activeDimension)return;
     const p = worldToScreen(spawn.x || 0, spawn.z || 0);
     const r = Math.max(4, (spawn.radius || 96) * view.scale);
     if (p.x + r >= -80 && p.x - r <= width + 80 && p.y + r >= -80 && p.y - r <= height + 80 && r < Math.max(width, height) * 3) {
@@ -547,6 +606,7 @@
     ctx.font = '800 12px system-ui, sans-serif';
     let labelsLeft = view.scale >= 1.1 ? 40 : 0;
     for (const t of territories) {
+      if((t.dimension||'minecraft:overworld')!==activeDimension)continue;
       const minX = Number(t.minX ?? (Number(t.x || 0) - Number(t.size || 48) / 2));
       const minZ = Number(t.minZ ?? (Number(t.z || 0) - Number(t.size || 48) / 2));
       const maxX = Number(t.maxX ?? (Number(t.x || 0) + Number(t.size || 48) / 2));
@@ -578,6 +638,7 @@
     const players = map.players || [];
     if (!players.length) return;
     for (const player of players) {
+      if((player.dimension||map.spawn?.dimension||'minecraft:overworld')!==activeDimension)continue;
       const p = worldToScreen(player.x || 0, player.z || 0);
       if (p.x < -80 || p.x > width + 80 || p.y < -80 || p.y > height + 80) continue;
       const pending = player.pending === true;
@@ -625,13 +686,14 @@
     drawSpawn(map);
     drawTerritories(map);
     drawPlayers(map);
+    renderNpcs(map);
     if (needsAnotherDraw) requestAnimationFrame(scheduleIdleWarmup);
   }
 
   function signatureForInfo(map) {
     return [
       map.online ? '1' : '0',
-      map.worldName || '',
+      map.worldName || '',activeDimension,
       map.spawn?.x, map.spawn?.y, map.spawn?.z, map.spawn?.radius,
       map.players?.length || 0,
       tileCache.size,
@@ -651,14 +713,14 @@
     els.liveDot?.classList.toggle('online', online);
     els.liveDot?.classList.toggle('offline', !online);
     if (els.liveTitle) els.liveTitle.textContent = online ? 'Мапа онлайн' : 'Мапа очікує сервер';
-    if (els.liveSubtitle) els.liveSubtitle.textContent = online ? 'Оновлюються тільки зміни, без перемальовування всієї карти' : 'Сервер ще не надіслав координати';
+    if (els.liveSubtitle) els.liveSubtitle.textContent = online ? 'Світ і позиції оновлюються автоматично' : 'Сервер ще не надіслав координати';
     const serverTileCount = Number(map.tileCount || 0);
-    if (els.meta) els.meta.textContent = `${map.worldName || 'Світ'} · ${map.spawn?.dimension || 'minecraft:overworld'} · ${serverTileCount ? 'вид зверху' : 'очікуємо відкриті чанки'}`;
+    if (els.meta) els.meta.textContent = `${map.worldName || 'Світ'} · ${dimNames[activeDimension] || activeDimension || 'minecraft:overworld'} · ${serverTileCount ? 'вид зверху' : 'очікуємо відкриті чанки'}`;
     if (els.playerCount) els.playerCount.textContent = `${map.players?.length || 0} гравців`;
     if (els.spawnCoords) els.spawnCoords.textContent = `X ${fmt(map.spawn?.x)} · Y ${fmt(map.spawn?.y)} · Z ${fmt(map.spawn?.z)}`;
     if (els.spawnRadius) els.spawnRadius.textContent = `Радіус: ${fmt(map.spawn?.radius || 0)} блоків`;
     if (els.renderCount) els.renderCount.textContent = `${tileCache.size}${serverTileCount && serverTileCount !== tileCache.size ? ` / ${serverTileCount}` : ''} ділянок`;
-    if (els.renderSubtitle) els.renderSubtitle.textContent = tileCache.size ? 'Після першого завантаження сайт отримує тільки зміни' : (online && (map.players?.length || 0) ? 'Сервер онлайн, але тайли ще не прийшли — перевір map config/secret' : 'Чекаємо відкриті гравцями чанки');
+    if (els.renderSubtitle) els.renderSubtitle.textContent = tileCache.size ? 'Після першого завантаження сайт отримує тільки зміни' : (online && (map.players?.length || 0) ? 'Очікуємо відкриті ділянки світу' : 'Чекаємо відкриті гравцями чанки');
     if (els.territoryCount) els.territoryCount.textContent = String((map.territories || []).length || 0);
     renderPlayers(map.players || []);
   }
@@ -740,6 +802,8 @@
   }, { passive: false });
 
   wrap.addEventListener('pointerdown', event => {
+    if(event.target.closest('button,a,select,.map-npc-tooltip'))return;
+    tooltipPinned=false;npcTooltip.hidden=true;
     dragging = true;
     dragLast = { x: event.clientX, y: event.clientY };
     wrap.classList.add('dragging');

@@ -3,9 +3,9 @@
 
   const CONFIG = {
     canvasId: 'site-starfield',
-    maxStars: 260,
-    minStars: 42,
-    density: 7200,
+    maxStars: 60,
+    minStars: 18,
+    density: 24000,
     mobileDensity: 11800,
     spotlightRadius: 340,
     drift: 0.22

@@ -10,6 +10,8 @@ const zlib = require('zlib');
 const { URL } = require('url');
 const { CharacterRegistry, IdentityError, validNick, validUuid } = require('./character-registry');
 const { connectionFile } = require('./connection-export');
+const { validSecret } = require('./site-bootstrap');
+const worldCatalog = require('./world-catalog');
 
 function loadDotEnvFile(filePath) {
   try {
@@ -882,6 +884,7 @@ function publicMapState(raw = {}, options = {}) {
     serverTileCursor: tileCursorFor(allTiles),
     tileLimit: maxTiles,
     territories: readGuildTerritories().territories,
+    npcState: worldCatalog.readNpcs(),
     checkedAt: new Date().toISOString()
   };
 }
@@ -2044,7 +2047,7 @@ function safeStaticPath(urlPath) {
   try { route = decodeURIComponent(urlPath.split('?')[0]); }
   catch { return null; }
   if (route === '/') route = '/index.html';
-  const cleanRoutes = new Set(['/support', '/map', '/status', '/login', '/register', '/profile', '/download', '/admin', '/news']);
+  const cleanRoutes = new Set(['/support', '/map', '/status', '/login', '/register', '/profile', '/download', '/admin', '/news', '/catalog']);
   if (cleanRoutes.has(route)) route = `${route}.html`;
   const requested = path.resolve(PUBLIC_DIR, '.' + route);
   const relative = path.relative(PUBLIC_DIR, requested);
@@ -2144,15 +2147,21 @@ async function handleApi(req, res, pathname) {
     if (method === 'GET' && pathname === '/api/admin/minecraft/connection/status') {
       if (!auth.user || auth.user.role !== 'admin') return json(res, 403, { ok: false, error: 'Доступ лише для адміністратора' });
       res.setHeader('Cache-Control', 'no-store, private');
+      const pushedAt = Date.parse(db.serverStatus.lastUpdatedAt || '');
+      const recentPush = db.serverStatus.source === 'homecraft-neoforge-server'
+        && db.serverStatus.online === true && Number.isFinite(pushedAt)
+        && Date.now() - pushedAt >= 0 && Date.now() - pushedAt <= SERVER_HEARTBEAT_TTL_MS;
       return json(res, 200, {
         ok: true,
         siteUrl: process.env.PUBLIC_SITE_URL || process.env.HOMECRAFT_PUBLIC_SITE_URL || '',
-        serverSecretConfigured: SERVER_SECRET.length >= 32
-          && !['change-this-secret-before-public-use', 'generated-by-setup-homecraft-config'].includes(SERVER_SECRET),
+        serverSecretConfigured: validSecret(SERVER_SECRET),
         minecraftHost: getMinecraftHost(),
-        // Server cannot verify a remote Minecraft configuration on its own.
-        minecraftPaired: null,
-        nextStep: 'Завантажити приватний homecraft-connection.properties з адмінпанелі сайту та встановити на Minecraft-сервер.'
+        // Only a recent authenticated push establishes an active connection.
+        minecraftPaired: recentPush,
+        lastMinecraftPushAt: db.serverStatus.source === 'homecraft-neoforge-server' && Number.isFinite(pushedAt)
+          ? db.serverStatus.lastUpdatedAt : null,
+        nextStep: recentPush ? 'Сайт отримує статус від Minecraft-сервера.'
+          : 'Завантажити приватний homecraft-connection.properties з адмінпанелі сайту, встановити у config/ Minecraft-сервера та перезапустити його.'
       });
     }
 
@@ -2173,6 +2182,19 @@ async function handleApi(req, res, pathname) {
       return json(res, 200, { ...await getLiveServerStatus(db), runtime: MINECRAFT_RUNTIME });
     }
 
+
+    if (method === 'GET' && pathname === '/api/catalog') {
+      return json(res, 200, { ok: true, ...worldCatalog.readCatalog() }, { 'Cache-Control': 'no-store' });
+    }
+    if (method === 'GET' && pathname === '/api/world/npcs') {
+      return json(res, 200, { ok: true, ...worldCatalog.readNpcs() }, { 'Cache-Control': 'no-store' });
+    }
+    if (method === 'POST' && pathname === '/api/world/catalog/sync') {
+      if (!requireSecret(req)) return json(res, 401, { ok: false, error: 'Некоректний serverSecret' });
+      const body = await freshBody();
+      try { return json(res, 200, { ok: true, ...worldCatalog.syncWorld(body) }); }
+      catch (error) { return json(res, 400, { ok: false, error: error.message }); }
+    }
 
     if (method === 'GET' && pathname === '/api/map/status') {
       const queryUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -2827,7 +2849,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith('/api/')) return handleApi(req, res, url.pathname);
   // Canonicalize public pages rather than offering duplicate .html URLs.
   if (['GET','HEAD'].includes(req.method)) {
-    const route = url.pathname.match(/^\/(index|support|map|status|login|register|profile|download|news)\.html$/);
+    const route = url.pathname.match(/^\/(index|support|map|status|login|register|profile|download|news|catalog)\.html$/);
     if (route) {
       res.writeHead(301, { Location: (route[1] === 'index' ? '/' : '/' + route[1]) + url.search, 'Cache-Control': 'public, max-age=3600' });
       return res.end();
