@@ -46,11 +46,11 @@ const DATA_DIR = path.join(ROOT, 'data');
 // Runtime requirements shipped with the 26.3 source release.
 const MINECRAFT_RUNTIME = Object.freeze({
   minecraft: '26.3',
-  neoforge: '26.3.0.95',
-  minimumNeoForge: '26.3.0.0-beta',
-  neoForgeRange: '[26.3.0.0-beta,26.4)',
+  neoforge: '26.3.0.97',
+  minimumNeoForge: '26.3.0.97',
+  neoForgeRange: '[26.3.0.97,26.4)',
   java: 25,
-  installerUrl: 'https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.95/neoforge-26.3.0.95-installer.jar'
+  installerUrl: 'https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.97/neoforge-26.3.0.97-installer.jar'
 });
 const RUNTIME_LABEL = `Minecraft ${MINECRAFT_RUNTIME.minecraft} / NeoForge ${MINECRAFT_RUNTIME.neoforge}`;
 
