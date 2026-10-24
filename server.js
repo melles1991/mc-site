@@ -63,6 +63,39 @@ const SERVER_SECRET = process.env.SERVER_SECRET || process.env.HOMECRAFT_SERVER_
 const COOKIE_SECURE = PUBLIC_SITE_URL.startsWith('https://') || String(process.env.COOKIE_SECURE || 'false').toLowerCase() === 'true';
 const TRUST_PROXY = String(process.env.HOMECRAFT_TRUST_PROXY || 'false').toLowerCase() === 'true';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
+const RESET_TTL_MS = 30 * 60 * 1000;
+const RESET_REQUEST_INTERVAL_MS = 10 * 60 * 1000;
+const SMTP_HOST = String(process.env.HOMECRAFT_SMTP_HOST || '').trim();
+const SMTP_PORT = Number(process.env.HOMECRAFT_SMTP_PORT || 587);
+const SMTP_USER = String(process.env.HOMECRAFT_SMTP_USER || '').trim();
+const SMTP_PASSWORD = String(process.env.HOMECRAFT_SMTP_PASSWORD || '');
+const SMTP_FROM = String(process.env.HOMECRAFT_SMTP_FROM || '').trim();
+const SMTP_READY = Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASSWORD && /^\S+@\S+\.\S+$/.test(SMTP_FROM));
+let smtpTransport = null;
+const passwordResetMailInFlight = new Set();
+function passwordResetUrl(token) {
+  const base = new URL(PUBLIC_SITE_URL);
+  if (base.protocol !== 'https:' && !['127.0.0.1', 'localhost'].includes(base.hostname)) {
+    throw new Error('Password reset requires HTTPS');
+  }
+  // Fragment never reaches HTTP access logs and referrer headers.
+  return `${base.origin}/reset-password#token=${encodeURIComponent(token)}`;
+}
+async function sendAccountEmail(to, subject, text) {
+  if (!SMTP_READY) throw new Error('SMTP is not configured');
+  if (!smtpTransport) {
+    const nodemailer = require('nodemailer');
+    smtpTransport = nodemailer.createTransport({
+      host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_PORT === 465,
+      requireTLS: SMTP_PORT !== 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
+      tls: { rejectUnauthorized: true, minVersion: 'TLSv1.2' },
+      connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 15000
+    });
+  }
+  return smtpTransport.sendMail({from: SMTP_FROM, to, subject, text});
+}
+
 const MC_SESSION_TTL_MS = 1000 * 60 * 20;
 const SERVER_HEARTBEAT_TTL_MS = Number(process.env.HOMECRAFT_SERVER_HEARTBEAT_TTL_MS || 90_000);
 const MC_PING_ENABLED = String(process.env.HOMECRAFT_MC_PING_ENABLED || 'true').toLowerCase() !== 'false';
@@ -940,7 +973,8 @@ function defaultRuntimeDb() {
     sessions: [],
     minecraftSessions: [],
     serverStatus: defaultServerStatus(),
-    audit: []
+    audit: [],
+    passwordResets: []
   };
 }
 
@@ -1002,6 +1036,7 @@ function readDb() {
     sessions: Array.isArray(runtime.sessions) ? runtime.sessions : [],
     minecraftSessions: Array.isArray(runtime.minecraftSessions) ? runtime.minecraftSessions : [],
     audit: Array.isArray(runtime.audit) ? runtime.audit : [],
+    passwordResets: Array.isArray(runtime.passwordResets) ? runtime.passwordResets : [],
     serverStatus: { ...defaultServerStatus(), ...(runtime.serverStatus || {}) }
   };
 }
@@ -1017,7 +1052,8 @@ function writeDb(db) {
     sessions: Array.isArray(db.sessions) ? db.sessions : [],
     minecraftSessions: Array.isArray(db.minecraftSessions) ? db.minecraftSessions : [],
     serverStatus: { ...defaultServerStatus(), ...(db.serverStatus || {}) },
-    audit: Array.isArray(db.audit) ? db.audit : []
+    audit: Array.isArray(db.audit) ? db.audit : [],
+    passwordResets: Array.isArray(db.passwordResets) ? db.passwordResets : []
   });
   db._runtimeRevision = crypto.createHash('sha256').update(fs.readFileSync(RUNTIME_DB_FILE)).digest('hex');
 }
@@ -1543,6 +1579,21 @@ function readClientModMetadata(filePath) {
   const hasClientCode = entryNames.some(name => /(^|\/)client(\/|$)|(^|\/)renderer(\/|$)|Client[^/]*\.class$|Renderer[^/]*\.class$/i.test(name));
   const hasClientVisualAssets = entryNames.some(name => /^assets\/[^/]+\/(models|textures|blockstates|particles|atlases|sounds)\//i.test(name));
   const hasLanguageAssets = entryNames.some(name => /^assets\/[^/]+\/lang\//i.test(name));
+  // Reject outdated Guild JARs that contain NPC/guild code but not Hearthstones.
+  // Do not offer them to the launcher or download page: they silently lose icons/models.
+  const guildModelAssets = [
+    'items/hearthstone.json', 'items/guild_hearthstone.json',
+    'models/item/hearthstone.json', 'models/item/guild_hearthstone.json',
+    'models/item/hearthstone_hand.json', 'models/item/hearthstone_hand_active.json',
+    'models/item/guild_hearthstone_hand.json', 'models/item/guild_hearthstone_hand_active.json',
+    'textures/item/hearthstone.png', 'textures/item/guild_hearthstone.png'
+  ];
+  const hasEmbeddedHearthstones = [
+    'ua/homecraft/guild/item/HomeCraftGuildItems.class',
+    'ua/homecraft/guild/item/HearthstoneItem.class',
+    'ua/homecraft/guild/server/GuildHearthstoneService.class',
+    ...guildModelAssets.map(asset => 'assets/homecraftguild/' + asset)
+  ].every(name => zip.files.has(name));
   return {
     minecraftRange: dependencies.minecraft || '',
     neoForgeRange: dependencies.neoforge || '',
@@ -1554,6 +1605,7 @@ function readClientModMetadata(filePath) {
     hasClientCode,
     hasClientVisualAssets,
     hasLanguageAssets,
+    hasEmbeddedHearthstones,
     hasToml: Boolean(toml)
   };
 }
@@ -1652,6 +1704,7 @@ function classifyClientModFile(filePath, fileName) {
     hasClientCode: Boolean(meta.hasClientCode),
     hasClientVisualAssets: Boolean(meta.hasClientVisualAssets),
     hasLanguageAssets: Boolean(meta.hasLanguageAssets),
+    hasEmbeddedHearthstones: Boolean(meta.hasEmbeddedHearthstones),
     ownedHomeCraftMod,
     requiredHomeCraftBuild,
     hasClientSide: Boolean(hasClientSide),
@@ -1664,6 +1717,25 @@ function classifyClientModFile(filePath, fileName) {
 
   if (!requiredHomeCraftBuild) {
     return { ...enriched, reason: 'not-our-built-client-addon', reasonLabel: 'не входить у наш список збірки', clientRequirement: 'not-required-client-mod' };
+  }
+
+  if (meta.modId === 'homecraftguild') {
+    // v0.1.187 is the first release with verified compiled-client deployment to website/client-mods.
+    // Reject older otherwise apparently valid JARs to prevent silent downgrades.
+    const versionParts = String(meta.version || '').match(/^(\d+)\.(\d+)\.(\d+)(?:[-+.]|$)/);
+    const versionCode = versionParts
+      ? (Number(versionParts[1]) * 100000000 + Number(versionParts[2]) * 100000 + Number(versionParts[3]))
+      : 0;
+    if (versionCode < 100187) {
+      return { ...enriched, reason: 'legacy-hearthstone-build',
+        reasonLabel: 'старий Guild JAR: потрібен 0.1.187+ із ресурсами для клієнта та синхронізацією з сайтом',
+        clientRequirement: 'outdated-build' };
+    }
+  }
+  if (meta.modId === 'homecraftguild' && !meta.hasEmbeddedHearthstones) {
+    return { ...enriched, reason: 'missing-hearthstone-assets',
+      reasonLabel: 'застарілий Guild JAR: немає класів, іконок або 3D-моделей Hearthstone',
+      clientRequirement: 'outdated-build' };
   }
 
   if (!supportsMinecraftRange(meta.minecraftRange, MINECRAFT_RUNTIME.minecraft)) {
@@ -1999,6 +2071,7 @@ function cleanupExpired(db) {
   const now = Date.now();
   db.sessions = db.sessions.filter(s => Number(s.expiresAt) > now);
   db.minecraftSessions = db.minecraftSessions.filter(s => Number(s.expiresAt) > now);
+  db.passwordResets = (db.passwordResets || []).filter(t => Number(t.expiresAt) > now && (Number(t.createdAt) > now - 86400000));
 }
 
 function getAuth(req, db) {
@@ -2047,7 +2120,7 @@ function safeStaticPath(urlPath) {
   try { route = decodeURIComponent(urlPath.split('?')[0]); }
   catch { return null; }
   if (route === '/') route = '/index.html';
-  const cleanRoutes = new Set(['/support', '/map', '/status', '/login', '/register', '/profile', '/download', '/admin', '/news', '/catalog']);
+  const cleanRoutes = new Set(['/support', '/map', '/status', '/login', '/register', '/forgot-password', '/reset-password', '/profile', '/download', '/admin', '/news', '/catalog']);
   if (cleanRoutes.has(route)) route = `${route}.html`;
   const requested = path.resolve(PUBLIC_DIR, '.' + route);
   const relative = path.relative(PUBLIC_DIR, requested);
@@ -2084,11 +2157,11 @@ function serveStatic(req, res, urlPath) {
   const filePath = safeStaticPath(urlPath);
   if (!filePath || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) return notFound(res);
   const ext = path.extname(filePath).toLowerCase();
-  const isPrivate = new Set(['login.html','register.html','profile.html','admin.html','news.html']).has(path.basename(filePath));
+  const isPrivate = new Set(['login.html','register.html','forgot-password.html','reset-password.html','profile.html','admin.html','news.html']).has(path.basename(filePath));
   const headers = {
     'Content-Type': MIME[ext] || 'application/octet-stream',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Referrer-Policy': isPrivate ? 'no-referrer' : 'strict-origin-when-cross-origin',
     ...(isPrivate ? { 'X-Robots-Tag': 'noindex, nofollow, noarchive' } : {})
   };
   if (['.html', '.css', '.js'].includes(ext)) {
@@ -2452,6 +2525,68 @@ async function handleApi(req, res, pathname) {
       return json(res, 200, { ok: true, user: publicUser(user) }, { 'Set-Cookie': sessionCookie(token) });
     }
 
+    if (method === 'POST' && pathname === '/api/auth/password/forgot') {
+      if (limited(req, 'forgot', 5, 15 * 60_000)) return json(res, 429, { ok: false, error: 'Забагато запитів. Спробуй трохи пізніше.' });
+      const body = await freshBody();
+      const email = normalizeEmail(body.email);
+      if (email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) return json(res, 400, { ok: false, error: 'Введи коректну електронну адресу.' });
+      if (!SMTP_READY) return json(res, 503, { ok: false, error: 'Відновлення пароля тимчасово недоступне. Звернися до підтримки.' });
+      const startedAt = Date.now();
+      const generic = { ok: true, message: 'Якщо акаунт із такою адресою існує, ми надішлемо лист із подальшими кроками.' };
+      const user = db.users.find(u => normalizeEmail(u.email) === email && !u.isBlocked);
+      const previous = user && (db.passwordResets || []).find(t => t.userId === user.id);
+      if (user && !passwordResetMailInFlight.has(user.id) && (!previous || Date.now() - previous.createdAt >= RESET_REQUEST_INTERVAL_MS)) {
+        passwordResetMailInFlight.add(user.id);
+        const token = makeToken(32);
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+        const resetLink = passwordResetUrl(token);  // Trusted origin only, not the HTTP Host header.
+        try {
+          await sendAccountEmail(user.email, 'Відновлення пароля Home Craft',
+            `Вітаємо!\n\nДля зміни пароля Home Craft відкрий посилання:\n${resetLink}\n\nПосилання діє 30 хвилин та лише один раз. Якщо ти не запитував відновлення, просто проігноруй цей лист.\n`);
+          db = readDb();
+          db.passwordResets = (db.passwordResets || []).filter(t => t.userId !== user.id);
+          db.passwordResets.push({ userId: user.id, tokenHash, createdAt: Date.now(), expiresAt: Date.now() + RESET_TTL_MS });
+          audit(db, 'auth.password_reset.requested', { userId: user.id });
+          writeDb(db);
+        } catch (error) {
+          // Never expose address, credentials or reset link to browser or logs.
+          logLine('error', 'Password recovery mail delivery failed', { requestId: req.homecraftRequestId, code: error.code || 'MAIL_ERROR' });
+        } finally {
+          passwordResetMailInFlight.delete(user.id);
+        }
+      }
+      const minimumDelay = 400 - (Date.now() - startedAt);
+      if (minimumDelay > 0) await new Promise(resolve => setTimeout(resolve, minimumDelay));
+      return json(res, 200, generic);
+    }
+
+    if (method === 'POST' && pathname === '/api/auth/password/reset') {
+      if (limited(req, 'password-reset', 8, 15 * 60_000)) return json(res, 429, { ok: false, error: 'Забагато спроб. Повтори пізніше.' });
+      const body = await freshBody();
+      const token = String(body.token || '');
+      const password = String(body.password || '');
+      if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return json(res, 400, { ok: false, error: 'Посилання недійсне або термін його дії минув.' });
+      if (!validatePassword(password)) return json(res, 400, { ok: false, error: 'Пароль повинен містити від 8 до 128 символів.' });
+      if (password !== body.passwordRepeat) return json(res, 400, { ok: false, error: 'Паролі не збігаються.' });
+      const hash = crypto.createHash('sha256').update(token).digest('hex');
+      const reset = (db.passwordResets || []).find(t => t.tokenHash === hash && t.expiresAt > Date.now());
+      const user = reset && db.users.find(u => u.id === reset.userId && !u.isBlocked);
+      if (!user) return json(res, 400, { ok: false, error: 'Посилання недійсне або термін його дії минув.' });
+      user.passwordHash = hashPassword(password);
+      db.passwordResets = (db.passwordResets || []).filter(t => t.userId !== user.id);
+      db.sessions = db.sessions.filter(session => session.userId !== user.id);
+      db.minecraftSessions = db.minecraftSessions.filter(session => session.userId !== user.id);
+      audit(db, 'auth.password_reset.completed', { userId: user.id });
+      writeDb(db);
+      try {
+        await sendAccountEmail(user.email, 'Пароль Home Craft змінено',
+          'Пароль до твого акаунта Home Craft було змінено. Усі попередні сеанси завершено. Якщо це робив не ти, звернися до адміністрації спільноти.');
+      } catch (error) {
+        logLine('warn', 'Password reset confirmation delivery failed', { requestId: req.homecraftRequestId, code: error.code || 'MAIL_ERROR' });
+      }
+      return json(res, 200, { ok: true, message: 'Пароль успішно змінено. Тепер увійди з новим паролем.' }, { 'Set-Cookie': clearSessionCookie() });
+    }
+
     if (method === 'POST' && pathname === '/api/auth/logout') {
       const cookies = parseCookies(req.headers.cookie || '');
       const currentSessionToken = cookies.homecraft_session;
@@ -2783,7 +2918,7 @@ async function handleApi(req, res, pathname) {
     return notFound(res);
   } catch (error) {
     logLine('error', 'API error', { requestId: req.homecraftRequestId, method, pathname, error: error.message, stack: error.stack });
-    return json(res, error instanceof IdentityError ? error.status : 500, { ok: false, error: error.message || 'Помилка сервера' });
+    return json(res, error instanceof IdentityError ? error.status : 500, { ok: false, error: error instanceof IdentityError && error.status < 500 ? error.message : 'Не вдалося виконати дію. Спробуй пізніше.' });
   }
 }
 
@@ -2849,7 +2984,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith('/api/')) return handleApi(req, res, url.pathname);
   // Canonicalize public pages rather than offering duplicate .html URLs.
   if (['GET','HEAD'].includes(req.method)) {
-    const route = url.pathname.match(/^\/(index|support|map|status|login|register|profile|download|news|catalog)\.html$/);
+    const route = url.pathname.match(/^\/(index|support|map|status|login|register|forgot-password|reset-password|profile|download|news|catalog)\.html$/);
     if (route) {
       res.writeHead(301, { Location: (route[1] === 'index' ? '/' : '/' + route[1]) + url.search, 'Cache-Control': 'public, max-age=3600' });
       return res.end();

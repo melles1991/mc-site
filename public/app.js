@@ -75,8 +75,8 @@ async function refreshStatus() {
         </div>
         <div class="info-list">
           <div class="info-row"><span>Гравці</span><strong>${playersOnline}/${playersMax}</strong></div>
-          <div class="info-row"><span>Авторизовані</span><strong>${status.authenticatedCount ?? 0}</strong></div>
-          <div class="info-row"><span>Очікують входу</span><strong>${status.pendingAuthCount ?? 0}</strong></div>
+          
+          
           <div class="info-row"><span>IP</span><strong>${escapeHtml(host)}</strong></div>
         </div>
       `;
@@ -198,26 +198,26 @@ async function refreshClientMods() {
     $$('.js-client-mods-updated').forEach(el => { el.textContent = cm.updatedAt ? formatDateTime(cm.updatedAt) : '—'; });
     $$('.js-client-mods-list').forEach(root => {
       if (!cm.available) {
-        root.innerHTML = `<p class="muted-small">${escapeHtml(cm.error || 'Папка mods недоступна.')}</p>`;
+        root.innerHTML = '<p class="muted-small">Моди тимчасово недоступні. Звернися до адміністратора в Discord.</p>';
         return;
       }
       if (!files.length) {
-        root.innerHTML = '<p class="muted-small">Наших клієнтських Home Craft адонів не знайдено. Перевір HOMECRAFT_SERVER_MODS_DIR, HOMECRAFT_CLIENT_MODS_REQUIRED_IDS і HOMECRAFT_CLIENT_MODS_REQUIRE_CLIENT_SIDE у SITE/.env.</p>';
+        root.innerHTML = '<p class="muted-small">Завантаження модів поки недоступне. Спробуй пізніше.</p>';
         return;
       }
       const incomplete = cm.ready === false
-        ? `<p class="muted-small">Комплект адонів неповний: ${escapeHtml((cm.missingIds || []).join(', '))}. Адміністратору потрібно оновити JAR для Minecraft 26.3 у папці mods. Дублікати одного мода приховано.</p>`
+        ? '<p class="muted-small">Набір модів оновлюється. Перед грою перевір, чи всі файли доступні.</p>'
         : '';
       root.innerHTML = incomplete + files.map(file => {
         const version = file.version ? ` · ${escapeHtml(file.version)}` : '';
-        const side = file.side && file.side !== 'UNKNOWN' ? file.side : 'CLIENT';
-        const reason = file.reasonLabel || 'клієнтська частина';
+        
+        
         return `
         <div class="download-file-row">
           <div>
             <strong>${escapeHtml(file.displayName || file.fileName)}</strong>
-            <span class="muted-small">${escapeHtml(file.fileName)}${version}</span>
-            <div class="download-file-tags"><span class="badge good">Обовʼязково</span><span class="badge">${escapeHtml(side)}</span><span class="badge">${escapeHtml(reason)}</span></div>
+            <span class="muted-small">${version ? version.slice(3) : 'Для Minecraft Home Craft'}</span>
+            <div class="download-file-tags"><span class="badge good">Для гри</span></div>
           </div>
           <div class="download-file-meta">
             <span>${formatBytes(file.sizeBytes)}</span>
@@ -227,7 +227,7 @@ async function refreshClientMods() {
       }).join('');
     });
   } catch (error) {
-    $$('.js-client-mods-list').forEach(root => { root.innerHTML = `<p class="muted-small">${escapeHtml(error.message)}</p>`; });
+    $$('.js-client-mods-list').forEach(root => { root.innerHTML = '<p class="muted-small">Не вдалося завантажити список. Спробуй пізніше.</p>'; });
   }
 }
 
@@ -293,6 +293,51 @@ function bindCopyButtons() {
 }
 
 function bindAuthForms() {
+  const forgot = $('#forgot-password-form');
+  if (forgot) forgot.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = $('button[type="submit"]', forgot);
+    const error = $('.form-error', forgot);
+    const ok = $('.form-ok', forgot);
+    error.textContent = ''; ok.textContent = ''; button.disabled = true;
+    try {
+      const { message } = await api('/api/auth/password/forgot', { method: 'POST', body: JSON.stringify({ email: $('#recovery-email').value.trim() }) });
+      ok.textContent = message;
+      forgot.reset();
+    } catch (failure) { error.textContent = failure.message; }
+    finally { button.disabled = false; }
+  });
+  const reset = $('#reset-password-form');
+  if (reset) {
+    const fragment = new URLSearchParams(location.hash.slice(1));
+    const resetToken = fragment.get('token') || '';
+    // Never keep a recovery secret in visible location/history.
+    history.replaceState(null, '', location.pathname);
+    if (!/^[A-Za-z0-9_-]{43}$/.test(resetToken)) {
+      $('.form-error', reset).textContent = 'Посилання недійсне або термін його дії минув. Запроси нове.';
+      $('button[type="submit"]', reset).disabled = true;
+    } else reset.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = $('button[type="submit"]', reset);
+      const error = $('.form-error', reset);
+      const ok = $('.form-ok', reset);
+      error.textContent = ''; ok.textContent = '';
+      const form = new FormData(reset);
+      if (form.get('password') !== form.get('passwordRepeat')) { error.textContent = 'Паролі не збігаються.'; return; }
+      button.disabled = true;
+      try {
+        const result = await api('/api/auth/password/reset', { method: 'POST', body: JSON.stringify({
+          token: resetToken, password: form.get('password'), passwordRepeat: form.get('passwordRepeat')
+        }) });
+        reset.reset();
+        ok.textContent = result.message;
+        button.textContent = 'Пароль змінено';
+        const link = document.createElement('a');
+        link.href = '/login'; link.className = 'btn btn-outline'; link.textContent = 'Перейти до входу';
+        reset.append(link);
+      } catch (failure) { error.textContent = failure.message; button.disabled = false; }
+    });
+  }
   const login = $('#login-form');
   if (login) {
     login.addEventListener('submit', async event => {
@@ -351,23 +396,23 @@ function renderProfile(root, user) {
   root.innerHTML = `
     <div class="card profile-card">
       <h3>Твій акаунт</h3>
-      <p>Цей профіль використовується сайтом, whitelist, NeoForge-модом і серверною перевіркою.</p>
+      <p>Тут можна керувати акаунтом і своїм персонажем у Home Craft.</p>
       <div class="info-list">
         <div class="info-row"><span>Email</span><strong>${escapeHtml(user.email)}</strong></div>
         <div class="info-row"><span>Логін</span><strong>${escapeHtml(user.login || user.displayName || '—')}</strong></div>
         <div class="info-row"><span>Роль</span><strong>${escapeHtml(user.role)}</strong></div>
         <div class="info-row"><span>Minecraft нік</span><strong>${escapeHtml(user.minecraftNick || 'Не привʼязано')}</strong></div>
-        <div class="info-row"><span>UUID</span><strong>${escapeHtml(user.minecraftUuid || '—')}</strong></div>
-        <div class="info-row"><span>Whitelist</span><strong><span class="badge ${user.isWhitelisted ? 'good' : 'bad'}">${user.isWhitelisted ? 'Активний' : 'Очікує'}</span></strong></div>
+        
+        <div class="info-row"><span>Доступ до сервера</span><strong><span class="badge ${user.isWhitelisted ? 'good' : 'bad'}">${user.isWhitelisted ? 'Активний' : 'Очікує'}</span></strong></div>
       </div>
       <div class="inline-actions"><button class="btn btn-soft btn-small" id="logout-btn">Вийти</button></div>
     </div>
     <div class="card profile-card">
       <h3>Привʼязати Minecraft</h3>
-      <p>Нік і UUID закріплюються за персонажем назавжди. Інший акаунт не зможе використати їх навіть після видалення персонажа. Новому персонажу потрібен новий нік.</p>
+      <p>Нік персонажа залишиться закріпленим за твоїм акаунтом. Після видалення він буде недоступним для повторного використання.</p>
       <form class="form" id="minecraft-link-form">
         <div class="field"><label>Minecraft нік</label><input class="input" name="minecraftNick" value="${escapeAttr(user.minecraftNick || '')}" placeholder="Steve" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" ${user.minecraftNick ? 'readonly' : ''} required></div>
-        <div class="field"><label>UUID, якщо є</label><input class="input" name="minecraftUuid" value="${escapeAttr(user.minecraftUuid || '')}" placeholder="опціонально" ${user.minecraftNick ? 'readonly' : ''}></div>
+        <div class="field"><label>Ідентифікатор персонажа (необовʼязково)</label><input class="input" name="minecraftUuid" value="${escapeAttr(user.minecraftUuid || '')}" placeholder="опціонально" ${user.minecraftNick ? 'readonly' : ''}></div>
         <div class="form-error"></div><div class="form-ok"></div>
         <button class="btn btn-primary" type="submit" ${user.minecraftNick ? 'disabled' : ''}>${user.minecraftNick ? 'Персонаж прив’язаний' : 'Створити прив’язку'}</button>
       </form>
@@ -378,23 +423,23 @@ function renderProfile(root, user) {
         <div class="field"><label>Пароль акаунта</label><input class="input" name="password" type="password" autocomplete="current-password" required></div>
         <div class="form-error"></div><button class="btn btn-outline" type="submit">Назавжди видалити персонажа</button>
       </form></details>` : ''}
-      <div class="command-box"><strong>Ігрова сесія:</strong><br><span id="mc-session-output">Натисни кнопку нижче, щоб отримати короткий token для NeoForge GUI.</span></div>
-      <div class="inline-actions"><button class="btn btn-outline btn-small" id="session-btn">Створити токен сесії</button></div>
+      <div class="command-box"><strong>Код підтвердження:</strong><br><span id="mc-session-output">Отримай код входу для підтвердження персонажа у грі.</span></div>
+      <div class="inline-actions"><button class="btn btn-outline btn-small" id="session-btn">Отримати код входу</button></div>
     </div>
     <div class="card profile-card asset-card" id="profile-skin-assets">
       <div class="card-title-row">
         <div>
           <span class="season-pill mini">SKIN / CAPE</span>
-          <h3>Скін, плащ і файли персонажа</h3>
+          <h3>Зовнішність персонажа</h3>
         </div>
         <span class="badge good">PNG до 1 МБ</span>
       </div>
-      <p>Тут можна додати власний <strong>skin PNG</strong>, <strong>cape PNG</strong> або залишити пряме посилання на PNG. Завантажені файли зберігаються окремо від акаунтів.</p>
+      <p>Обери власний скін і плащ. Завантаж зображення або додай посилання на нього.</p>
       <div class="character-model-preview" id="character-model-preview">
         <div class="model-preview-head">
           <div>
-            <strong>Повний preview персонажа</strong>
-            <span>Збирається зі skin/cape PNG і показує модель ближче до вигляду в грі.</span>
+            <strong>Попередній перегляд персонажа</strong>
+            <span>Перевір, як виглядатиме персонаж спереду та ззаду.</span>
           </div>
           <span class="badge model-badge">${escapeHtml((skin.skinModel || 'classic').toUpperCase())}</span>
         </div>
@@ -414,17 +459,17 @@ function renderProfile(root, user) {
             </div>
           </section>
         </div>
-        <div class="muted-small" id="skin-model-note">${skin.skinUrl ? 'Preview оновлюється автоматично після завантаження skin/cape.' : 'Додай skin PNG, щоб побачити модель персонажа.'}</div>
+        <div class="muted-small" id="skin-model-note">${skin.skinUrl ? 'Зовнішність оновлюється після завантаження.' : 'Додай скін, щоб побачити персонажа.'}</div>
       </div>
       <div class="skin-preview-grid">
         <div class="skin-preview-box">
-          <span>Skin preview</span>
-          ${skin.skinUrl ? `<img class="skin-preview-img" src="${escapeAttr(skin.skinUrl)}" alt="Skin preview">` : `<div class="skin-preview-empty">Немає skin</div>`}
+          <span>Скін</span>
+          ${skin.skinUrl ? `<img class="skin-preview-img" src="${escapeAttr(skin.skinUrl)}" alt="Скін">` : `<div class="skin-preview-empty">Скін не додано</div>`}
           ${skin.skinSize ? `<small>${escapeHtml(skin.skinSize.width)}x${escapeHtml(skin.skinSize.height)} · ${Math.round(Number(skin.skinSize.bytes || 0) / 1024)} КБ</small>` : ''}
         </div>
         <div class="skin-preview-box">
-          <span>Cape preview</span>
-          ${skin.capeUrl ? `<img class="skin-preview-img cape" src="${escapeAttr(skin.capeUrl)}" alt="Cape preview">` : `<div class="skin-preview-empty">Немає cape</div>`}
+          <span>Плащ</span>
+          ${skin.capeUrl ? `<img class="skin-preview-img cape" src="${escapeAttr(skin.capeUrl)}" alt="Плащ">` : `<div class="skin-preview-empty">Плащ не додано</div>`}
           ${skin.capeSize ? `<small>${escapeHtml(skin.capeSize.width)}x${escapeHtml(skin.capeSize.height)} · ${Math.round(Number(skin.capeSize.bytes || 0) / 1024)} КБ</small>` : ''}
         </div>
       </div>
@@ -447,7 +492,7 @@ function renderProfile(root, user) {
           <div class="inline-actions"><button class="btn btn-outline" type="submit">Зберегти URL</button><button class="btn btn-soft" type="button" id="clear-skin-btn">Очистити skin/cape</button></div>
         </form>
       </div>
-      <div class="command-box asset-paths"><strong>Де зберігається:</strong><br><span>SITE/data/assets.json</span><br><span>SITE/data/uploads/users/&lt;userId&gt;/skin.png</span><br><span>SITE/data/uploads/users/&lt;userId&gt;/cape.png</span></div>
+      
     </div>
   `;
   requestAnimationFrame(() => renderMinecraftModelPreview(user));
@@ -616,7 +661,7 @@ async function renderMinecraftModelPreview(user) {
     const img = skinUrl ? await loadPreviewImage(skinUrl) : await makeDefaultSkinImage(model);
     let cape = null;
     if (capeUrl) {
-      try { cape = await loadPreviewImage(capeUrl); } catch (error) { console.warn('[HomeCraft] Cape preview load failed', error); }
+      try { cape = await loadPreviewImage(capeUrl); } catch (error) { console.warn('[HomeCraft] Плащ load failed', error); }
     }
     drawMinecraftModel(front, img, model, 'front', cape);
     drawMinecraftModel(back, img, model, 'back', cape);
@@ -626,7 +671,7 @@ async function renderMinecraftModelPreview(user) {
         : 'Skin не заданий — показано базову модель. Додай PNG, щоб побачити власний вигляд.';
     }
   } catch (error) {
-    console.warn('[HomeCraft] Skin preview render failed', error);
+    console.warn('[HomeCraft] Скін render failed', error);
     drawEmptyModel(front, 'Skin не завантажився');
     drawEmptyModel(back, 'Skin не завантажився');
     if (note) note.textContent = 'Не вдалося завантажити skin PNG. Перевір, що URL відкривається у браузері або завантаж файл через сайт.';

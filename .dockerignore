@@ -13,3 +13,6 @@ deployment-backups
 .deploy.lock
 __pycache__
 *.pyc
+
+node_modules
+.npm

@@ -53,7 +53,9 @@
           "count": 3
         },
         "show_notification": true
-      }
+      },
+      "maxStackSize": 64,
+      "merchantBatchSize": 3
     },
     {
       "itemId": "homecraftguild:hearthstone",
@@ -79,7 +81,9 @@
           "count": 3
         },
         "show_notification": true
-      }
+      },
+      "maxStackSize": 64,
+      "merchantBatchSize": 3
     }
   ],
   "traders": [
