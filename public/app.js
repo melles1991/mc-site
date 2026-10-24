@@ -36,7 +36,7 @@ async function api(path, options = {}) {
 
 function renderRuntime(runtime = {}) {
   const minecraft = runtime.minecraft || '26.3';
-  const neoforge = runtime.neoforge || '26.3.0.95';
+  const neoforge = runtime.neoforge || '26.3.0.97';
   $$('.js-required-minecraft').forEach(el => { el.textContent = minecraft; });
   $$('.js-required-neoforge').forEach(el => { el.textContent = neoforge; });
   $$('.js-required-java').forEach(el => { el.textContent = String(runtime.java || 25); });
@@ -194,7 +194,6 @@ async function refreshClientMods() {
     const files = Array.isArray(cm.files) ? cm.files : [];
     $$('.js-client-mods-count').forEach(el => { el.textContent = String(files.length); });
     $$('.js-client-mods-dir').forEach(el => { el.textContent = cm.modsDir || '—'; });
-    $$('.js-client-mods-mode').forEach(el => { el.textContent = cm.mode === 'manual' ? 'Тільки наш allowlist + client-side' : 'Тільки наші client-side збірки'; });
     $$('.js-client-mods-updated').forEach(el => { el.textContent = cm.updatedAt ? formatDateTime(cm.updatedAt) : '—'; });
     $$('.js-client-mods-list').forEach(root => {
       if (!cm.available) {
@@ -209,19 +208,21 @@ async function refreshClientMods() {
         ? '<p class="muted-small">Набір модів оновлюється. Перед грою перевір, чи всі файли доступні.</p>'
         : '';
       root.innerHTML = incomplete + files.map(file => {
-        const version = file.version ? ` · ${escapeHtml(file.version)}` : '';
-        
-        
+        const version = file.version ? escapeHtml(String(file.version)) : '';
+        const rawPath = String(file.publicPath || file.url || '');
+        // Download links must stay on our own server; never trust arbitrary URLs from metadata.
+        const downloadPath = /^\/client-mods\/[a-zA-Z0-9._%()-]+$/.test(rawPath) && !/%2f|%5c|\.\./i.test(rawPath) ? rawPath : '';
+        if (!downloadPath) return '';
         return `
         <div class="download-file-row">
           <div>
             <strong>${escapeHtml(file.displayName || file.fileName)}</strong>
-            <span class="muted-small">${version ? version.slice(3) : 'Для Minecraft Home Craft'}</span>
+            <span class="muted-small">${version || 'Мод для Home Craft'}</span>
             <div class="download-file-tags"><span class="badge good">Для гри</span></div>
           </div>
           <div class="download-file-meta">
             <span>${formatBytes(file.sizeBytes)}</span>
-            <a class="btn btn-outline btn-small" href="${escapeAttr(file.publicPath || file.url || '#')}" download>Завантажити</a>
+            <a class="btn btn-outline btn-small" href="${escapeAttr(downloadPath)}" download>Завантажити файл</a>
           </div>
         </div>`;
       }).join('');
@@ -394,25 +395,25 @@ async function initProfile() {
 function renderProfile(root, user) {
   const skin = user.skin || {};
   root.innerHTML = `
-    <div class="card profile-card">
-      <h3>Твій акаунт</h3>
+    <div class="card profile-card hc-account-card" id="account-summary">
+      <div class="hc-account-top"><span class="hc-avatar" aria-hidden="true">${escapeHtml((user.displayName || user.login || 'H').slice(0,1).toUpperCase())}</span><div><span class="hc-overline">Твій профіль</span><h3>${escapeHtml(user.displayName || user.login || 'Гравець')}</h3><p>Керуй своїми даними та підключенням до гри.</p></div></div>
       <p>Тут можна керувати акаунтом і своїм персонажем у Home Craft.</p>
       <div class="info-list">
         <div class="info-row"><span>Email</span><strong>${escapeHtml(user.email)}</strong></div>
         <div class="info-row"><span>Логін</span><strong>${escapeHtml(user.login || user.displayName || '—')}</strong></div>
-        <div class="info-row"><span>Роль</span><strong>${escapeHtml(user.role)}</strong></div>
+        <div class="info-row"><span>Тип акаунта</span><strong>${user.role === 'admin' ? 'Адміністратор' : 'Гравець'}</strong></div>
         <div class="info-row"><span>Minecraft нік</span><strong>${escapeHtml(user.minecraftNick || 'Не привʼязано')}</strong></div>
         
         <div class="info-row"><span>Доступ до сервера</span><strong><span class="badge ${user.isWhitelisted ? 'good' : 'bad'}">${user.isWhitelisted ? 'Активний' : 'Очікує'}</span></strong></div>
       </div>
       <div class="inline-actions"><button class="btn btn-soft btn-small" id="logout-btn">Вийти</button></div>
     </div>
-    <div class="card profile-card">
-      <h3>Привʼязати Minecraft</h3>
+    <div class="card profile-card hc-character-card" id="character-link">
+      <span class="hc-overline">Твій персонаж</span><h3>${user.minecraftNick ? 'Minecraft привʼязано' : 'Привʼязати Minecraft'}</h3>
       <p>Нік персонажа залишиться закріпленим за твоїм акаунтом. Після видалення він буде недоступним для повторного використання.</p>
       <form class="form" id="minecraft-link-form">
         <div class="field"><label>Minecraft нік</label><input class="input" name="minecraftNick" value="${escapeAttr(user.minecraftNick || '')}" placeholder="Steve" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" ${user.minecraftNick ? 'readonly' : ''} required></div>
-        <div class="field"><label>Ідентифікатор персонажа (необовʼязково)</label><input class="input" name="minecraftUuid" value="${escapeAttr(user.minecraftUuid || '')}" placeholder="опціонально" ${user.minecraftNick ? 'readonly' : ''}></div>
+        <input type="hidden" name="minecraftUuid" value="${escapeAttr(user.minecraftUuid || '')}">
         <div class="form-error"></div><div class="form-ok"></div>
         <button class="btn btn-primary" type="submit" ${user.minecraftNick ? 'disabled' : ''}>${user.minecraftNick ? 'Персонаж прив’язаний' : 'Створити прив’язку'}</button>
       </form>
@@ -423,16 +424,16 @@ function renderProfile(root, user) {
         <div class="field"><label>Пароль акаунта</label><input class="input" name="password" type="password" autocomplete="current-password" required></div>
         <div class="form-error"></div><button class="btn btn-outline" type="submit">Назавжди видалити персонажа</button>
       </form></details>` : ''}
-      <div class="command-box"><strong>Код підтвердження:</strong><br><span id="mc-session-output">Отримай код входу для підтвердження персонажа у грі.</span></div>
+      <div class="command-box"><strong>Підтвердження входу в гру</strong><br><span id="mc-session-output">Отримай код входу для підтвердження персонажа у грі.</span></div>
       <div class="inline-actions"><button class="btn btn-outline btn-small" id="session-btn">Отримати код входу</button></div>
     </div>
     <div class="card profile-card asset-card" id="profile-skin-assets">
       <div class="card-title-row">
         <div>
-          <span class="season-pill mini">SKIN / CAPE</span>
+          <span class="hc-overline">Налаштування вигляду</span>
           <h3>Зовнішність персонажа</h3>
         </div>
-        <span class="badge good">PNG до 1 МБ</span>
+        <span class="badge good">Зображення PNG</span>
       </div>
       <p>Обери власний скін і плащ. Завантаж зображення або додай посилання на нього.</p>
       <div class="character-model-preview" id="character-model-preview">
@@ -475,7 +476,7 @@ function renderProfile(root, user) {
       </div>
       <div class="asset-actions-grid">
         <form class="form asset-form" id="skin-upload-form" enctype="multipart/form-data">
-          <h4>Завантаження файлом</h4>
+          <h4>Завантажити з комп'ютера</h4>
           <div class="field"><label>Skin PNG файл</label><input class="input file-input" type="file" name="skinFile" accept="image/png"></div>
           <div class="field"><label>Cape PNG файл</label><input class="input file-input" type="file" name="capeFile" accept="image/png"></div>
           <div class="field"><label>Модель</label><select class="input" name="skinModel"><option value="classic" ${skin.skinModel !== 'slim' ? 'selected' : ''}>Classic</option><option value="slim" ${skin.skinModel === 'slim' ? 'selected' : ''}>Slim</option></select></div>
@@ -484,16 +485,17 @@ function renderProfile(root, user) {
           <button class="btn btn-primary" type="submit">Завантажити PNG</button>
         </form>
         <form class="form asset-form" id="skin-form">
-          <h4>Пряме посилання</h4>
+          <h4>Вказати посилання</h4>
           <div class="field"><label>Skin PNG URL</label><input class="input" name="skinUrl" value="${escapeAttr(skin.skinUrl || '')}" placeholder="https://site/skin.png"></div>
           <div class="field"><label>Cape PNG URL</label><input class="input" name="capeUrl" value="${escapeAttr(skin.capeUrl || '')}" placeholder="https://site/cape.png"></div>
           <div class="field"><label>Модель</label><select class="input" name="skinModel"><option value="classic" ${skin.skinModel !== 'slim' ? 'selected' : ''}>Classic</option><option value="slim" ${skin.skinModel === 'slim' ? 'selected' : ''}>Slim</option></select></div>
           <div class="form-error"></div><div class="form-ok"></div>
-          <div class="inline-actions"><button class="btn btn-outline" type="submit">Зберегти URL</button><button class="btn btn-soft" type="button" id="clear-skin-btn">Очистити skin/cape</button></div>
+          <div class="inline-actions"><button class="btn btn-outline" type="submit">Зберегти URL</button><button class="btn btn-soft" type="button" id="clear-skin-btn">Прибрати скін і плащ</button></div>
         </form>
       </div>
       
     </div>
+    <div class="card profile-card hc-security-card" id="account-security"><span class="hc-overline">Доступ до акаунта</span><h3>Безпека акаунта</h3><p>Не передавай пароль іншим гравцям. Якщо забув його або хочеш відновити доступ, скористайся листом на свою пошту.</p><div class="hc-security-row"><div><strong>Електронна пошта</strong><p>${escapeHtml(user.email || 'Не вказано')}</p></div><a class="btn btn-outline btn-small" href="/forgot-password">Відновити пароль</a></div></div>
   `;
   requestAnimationFrame(() => renderMinecraftModelPreview(user));
   $('#logout-btn')?.addEventListener('click', async () => {

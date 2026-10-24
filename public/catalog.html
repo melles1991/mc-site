@@ -1,39 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="uk">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Предмети, рецепти та торговці — Home Craft</title>
-  <link rel="stylesheet" href="/styles.css?v=517">
-  <link rel="stylesheet" href="/theme.css?v=517"><link rel="stylesheet" href="/experience.css?v=5188">
-
-  <meta name="description" content="Предмети HomeCraft: рецепти крафту, ціни, імена торговців і розташування NPC на мапі.">
-  <meta name="robots" content="index, follow, max-image-preview:large">
-  <meta name="theme-color" content="#111514">
-  <meta name="color-scheme" content="dark">
-  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
-  <link rel="canonical" href="https://homecraft-mc.pp.ua/catalog">
-  <meta property="og:locale" content="uk_UA">
-  <meta property="og:site_name" content="Home Craft">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Каталог предметів — HomeCraft">
-  <meta property="og:description" content="Предмети HomeCraft: рецепти крафту, ціни, імена торговців і розташування NPC на мапі.">
-  <meta property="og:url" content="https://homecraft-mc.pp.ua/catalog">
-  <meta name="twitter:card" content="summary">
-  
-<link rel="stylesheet" href="/catalog.css?v=517"></head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Предмети, рецепти та торговці — Home Craft</title>
+<link href="/styles.css?v=517" rel="stylesheet"/>
+<link href="/theme.css?v=517" rel="stylesheet"/><link href="/experience.css?v=5188" rel="stylesheet"/>
+<meta content="Предмети HomeCraft: рецепти крафту, ціни, імена торговців і розташування NPC на мапі." name="description"/>
+<meta content="index, follow, max-image-preview:large" name="robots"/>
+<meta content="#111514" name="theme-color"/>
+<meta content="dark" name="color-scheme"/>
+<link href="/assets/logo.svg" rel="icon" type="image/svg+xml"/>
+<link href="https://homecraft-mc.pp.ua/catalog" rel="canonical"/>
+<meta content="uk_UA" property="og:locale"/>
+<meta content="Home Craft" property="og:site_name"/>
+<meta content="website" property="og:type"/>
+<meta content="Каталог предметів — HomeCraft" property="og:title"/>
+<meta content="Предмети HomeCraft: рецепти крафту, ціни, імена торговців і розташування NPC на мапі." property="og:description"/>
+<meta content="https://homecraft-mc.pp.ua/catalog" property="og:url"/>
+<meta content="summary" name="twitter:card"/>
+<link href="/catalog.css?v=517" rel="stylesheet"/><link href="/site-layout.css?v=5191" rel="stylesheet"/></head>
 <body><a class="skip-link" href="#main-content">До основного вмісту</a><header class="site-header">
-    <div class="container navbar">
-      <a class="brand" href="/"><img class="brand-logo" src="/assets/logo.svg" alt=""><span class="brand-name">Home Craft</span><span class="status-pill"><span class="status-dot js-server-dot offline"></span><span class="js-server-status">Офлайн</span></span></a>
-      <button class="mobile-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false" aria-label="Відкрити навігацію"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button><nav id="primary-navigation" class="nav-links" aria-label="Основна навігація"><a href="/">Головна</a><a href="/support">Підтримати</a><a href="/map">Мапа світу</a><a href="/catalog" class="active">Предмети</a><a href="/download" data-nav-download>Адони</a><a href="/status">Стан сервера</a><a class="js-auth-link" href="/login">Увійти</a></nav>
-      <a class="discord-btn" href="https://discord.gg/stNeSaVkhM" target="_blank" rel="noopener noreferrer">Discord</a>
-    </div>
-  </header>
-<main id="main-content" class="catalog-page"><section class="catalog-hero container"><div><span class="eyebrow">Довідник HomeCraft</span><h1>Знайди свою<br><span>наступну річ.</span></h1><p>Наші предмети, точні рецепти й пропозиції торговців. Усе потрібне для наступної пригоди — в одному місці.</p></div><div class="catalog-hero-art" aria-hidden="true"><img src="/assets/items/hearthstone.png" alt=""><img src="/assets/items/guild_hearthstone.png" alt=""></div></section>
-<section class="container catalog-body"><div class="catalog-overview"><div><strong id="catalog-total">—</strong><span>предметів</span></div><div><strong id="catalog-recipes">—</strong><span>рецепти HomeCraft</span></div><div><strong id="catalog-merchants">—</strong><span>торговців</span></div><p id="catalog-status" role="status">Завантажуємо каталог…</p><button id="catalog-retry" class="btn btn-outline" type="button" hidden>Спробувати знову</button></div>
-<div class="catalog-tabs" aria-label="Розділ довідника"><button type="button" data-tab="items" aria-pressed="true">Предмети</button><button type="button" data-tab="traders" aria-pressed="false">Торговці та NPC</button></div>
-<div class="catalog-filters"><label>Пошук<input type="search" id="catalog-search" placeholder="Назва предмета, ID або торговець…" autocomplete="off"></label><label>Торговець<select id="catalog-vendor"><option value="">Усі торговці</option></select></label><label>Отримання<select id="catalog-craft"><option value="">Усі предмети</option><option value="recipe">Є рецепт HomeCraft</option><option value="trade">Пропозиції торговців</option></select></label></div>
-<div id="catalog-items-panel"><div class="catalog-category-bar"><div class="category-chips"><button type="button" data-category="" aria-pressed="true">Усі</button><button type="button" data-category="teleport" aria-pressed="false">Телепортація</button><button type="button" data-category="guild" aria-pressed="false">Гільдія</button><button type="button" data-category="weapons" aria-pressed="false">Зброя</button><button type="button" data-category="armor" aria-pressed="false">Захист</button><button type="button" data-category="tools" aria-pressed="false">Інструменти</button><button type="button" data-category="food" aria-pressed="false">Їжа</button><button type="button" data-category="supplies" aria-pressed="false">Ресурси</button></div><span id="catalog-results" aria-live="polite"></span></div><div class="catalog-grid" id="catalog-grid"><div class="catalog-skeleton"></div><div class="catalog-skeleton"></div><div class="catalog-skeleton"></div></div><div class="catalog-pagination"><button type="button" class="btn btn-outline btn-small" id="catalog-prev">← Назад</button><span id="catalog-page">1 / 1</span><button type="button" class="btn btn-outline btn-small" id="catalog-next">Далі →</button></div></div>
-<div id="catalog-traders-panel" hidden><div class="trader-grid" id="catalog-traders"></div></div></section></main>
-<dialog id="item-dialog" class="item-dialog" aria-labelledby="item-dialog-title"><div class="item-dialog-header"><h2 id="item-dialog-title"></h2><button type="button" id="item-dialog-close" aria-label="Закрити">×</button></div><div id="item-dialog-content"></div></dialog>
-<footer class="footer"><div class="container footer-inner"><div><strong>Home Craft</strong> — український простір свободи.</div><div>Онлайн: <span class="js-online-count">0/100</span></div></div></footer><script src="/app.js?v=517"></script><script src="/site-shell.js?v=517"></script><script src="/catalog.js?v=517"></script></body></html>
+<div class="container navbar">
+<a class="brand" href="/"><img alt="" class="brand-logo" src="/assets/logo.svg"/><span class="brand-name">Home Craft</span><span class="status-pill"><span class="status-dot js-server-dot offline"></span><span class="js-server-status">Офлайн</span></span></a>
+<button aria-controls="primary-navigation" aria-expanded="false" aria-label="Відкрити навігацію" class="mobile-toggle" type="button"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button><nav aria-label="Основна навігація" class="nav-links" id="primary-navigation"><a class="" href="/">Головна</a><a href="/support">Підтримати</a><a href="/map">Мапа світу</a><a href="/catalog">Предмети</a><a data-nav-download="" href="/download">Адони</a><a href="/status">Стан сервера</a><a class="js-auth-link" href="/login">Увійти</a></nav>
+<a class="discord-btn" href="https://discord.gg/stNeSaVkhM" rel="noopener noreferrer" target="_blank">Discord</a>
+</div>
+</header>
+<main class="catalog-page hc-main" data-page="catalog" id="main-content"><section class="catalog-hero container"><div><span class="eyebrow">Довідник HomeCraft</span><h1>Знайди свою<br/><span>наступну річ.</span></h1><p>Наші предмети, точні рецепти й пропозиції торговців. Усе потрібне для наступної пригоди — в одному місці.</p></div><div aria-hidden="true" class="catalog-hero-art"><img alt="" src="/assets/items/hearthstone.png"/><img alt="" src="/assets/items/guild_hearthstone.png"/></div></section>
+<section class="container catalog-body"><div class="catalog-overview"><div><strong id="catalog-total">—</strong><span>предметів</span></div><div><strong id="catalog-recipes">—</strong><span>рецепти HomeCraft</span></div><div><strong id="catalog-merchants">—</strong><span>торговців</span></div><p id="catalog-status" role="status">Завантажуємо каталог…</p><button class="btn btn-outline" hidden="" id="catalog-retry" type="button">Спробувати знову</button></div>
+<div aria-label="Розділ довідника" class="catalog-tabs"><button aria-pressed="true" data-tab="items" type="button">Предмети</button><button aria-pressed="false" data-tab="traders" type="button">Торговці та NPC</button></div>
+<div class="catalog-filters"><label>Пошук<input autocomplete="off" id="catalog-search" placeholder="Назва предмета, ID або торговець…" type="search"/></label><label>Торговець<select id="catalog-vendor"><option value="">Усі торговці</option></select></label><label>Отримання<select id="catalog-craft"><option value="">Усі предмети</option><option value="recipe">Є рецепт HomeCraft</option><option value="trade">Пропозиції торговців</option></select></label></div>
+<div id="catalog-items-panel"><div class="catalog-category-bar"><div class="category-chips"><button aria-pressed="true" data-category="" type="button">Усі</button><button aria-pressed="false" data-category="teleport" type="button">Телепортація</button><button aria-pressed="false" data-category="guild" type="button">Гільдія</button><button aria-pressed="false" data-category="weapons" type="button">Зброя</button><button aria-pressed="false" data-category="armor" type="button">Захист</button><button aria-pressed="false" data-category="tools" type="button">Інструменти</button><button aria-pressed="false" data-category="food" type="button">Їжа</button><button aria-pressed="false" data-category="supplies" type="button">Ресурси</button></div><span aria-live="polite" id="catalog-results"></span></div><div class="catalog-grid" id="catalog-grid"><div class="catalog-skeleton"></div><div class="catalog-skeleton"></div><div class="catalog-skeleton"></div></div><div class="catalog-pagination"><button class="btn btn-outline btn-small" id="catalog-prev" type="button">← Назад</button><span id="catalog-page">1 / 1</span><button class="btn btn-outline btn-small" id="catalog-next" type="button">Далі →</button></div></div>
+<div hidden="" id="catalog-traders-panel"><div class="trader-grid" id="catalog-traders"></div></div></section></main>
+<dialog aria-labelledby="item-dialog-title" class="item-dialog" id="item-dialog"><div class="item-dialog-header"><h2 id="item-dialog-title"></h2><button aria-label="Закрити" id="item-dialog-close" type="button">×</button></div><div id="item-dialog-content"></div></dialog>
+<footer class="footer"><div class="container footer-inner"><div><strong>Home Craft</strong> — український простір свободи.</div><div>Онлайн: <span class="js-online-count">0/100</span></div></div></footer><script src="/app.js?v=5191"></script><script src="/site-shell.js?v=5191"></script><script src="/catalog.js?v=517"></script></body></html>
