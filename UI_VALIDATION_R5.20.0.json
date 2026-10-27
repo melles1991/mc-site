@@ -1,0 +1,41 @@
+{
+  "release": "R5.20.0",
+  "status": "PASS",
+  "browser": "Chromium via isolated static layout preview",
+  "layout_cases": 105,
+  "pages": 13,
+  "synthetic_authenticated_templates": 2,
+  "viewport_widths": [
+    320,
+    390,
+    640,
+    768,
+    1120,
+    1280,
+    1440
+  ],
+  "page_horizontal_overflow": false,
+  "wide_table_behavior": "local scroll container",
+  "visual_checks": [
+    "desktop home",
+    "desktop downloads",
+    "mobile home",
+    "mobile profile with long data",
+    "mobile catalog dialog"
+  ],
+  "interaction_checks": [
+    "mobile menu opens",
+    "Escape closes menu",
+    "item dialog opens",
+    "all five download rows render at 320px"
+  ],
+  "real_http_pages": 13,
+  "real_site_launcher_delivery_checks": 34,
+  "javascript_syntax": "PASS",
+  "shared_layout": "PASS",
+  "shared_css_bytes_before": 50153,
+  "shared_css_bytes_after": 29728,
+  "live_site_deployed": false,
+  "native_mobile_devices_tested": false,
+  "minecraft_launched": false
+}

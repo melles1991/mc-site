@@ -6,13 +6,13 @@
     maxStars: 60,
     minStars: 18,
     density: 24000,
-    mobileDensity: 11800,
+    mobileDensity: 24000,
     spotlightRadius: 340,
     drift: 0.22
   };
 
-  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion) return;
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motionPreference.matches) return;
 
   function ready(fn) {
     if (document.readyState === 'loading') {
@@ -83,7 +83,7 @@
     function desiredStarCount() {
       const isSmall = Math.min(window.innerWidth, window.innerHeight) < 720;
       const density = isSmall ? CONFIG.mobileDensity : CONFIG.density;
-      const cap = isSmall ? 110 : CONFIG.maxStars;
+      const cap = isSmall ? 30 : CONFIG.maxStars;
       return Math.max(CONFIG.minStars, Math.min(cap, Math.floor((width * height) / density)));
     }
 
@@ -122,6 +122,7 @@
       if (timestamp - previousFrame < interval) { rafId = requestAnimationFrame(frame); return; }
       previousFrame = timestamp;
       ctx.clearRect(0, 0, width, height);
+      ctx.globalAlpha = 1;
       drawSpotlight();
       for (const star of stars) {
         star.update();
@@ -136,7 +137,7 @@
       resizeTimer = window.setTimeout(resize, 120);
     }, { passive: true });
 
-    document.addEventListener('mousemove', (event) => {
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) document.addEventListener('mousemove', (event) => {
       mouse.x = event.clientX;
       mouse.y = event.clientY;
       mouse.active = true;
@@ -147,11 +148,18 @@
     });
 
     document.addEventListener('visibilitychange', () => {
-      paused = document.hidden;
+      paused = document.hidden || motionPreference.matches;
+      cancelAnimationFrame(rafId);
       if (!paused) {
         cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(frame);
       }
+    });
+
+    motionPreference.addEventListener('change', () => {
+      paused = document.hidden || motionPreference.matches;
+      cancelAnimationFrame(rafId);
+      if (!paused) rafId = requestAnimationFrame(frame);
     });
 
     resize();

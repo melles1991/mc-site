@@ -815,7 +815,7 @@ async function initAdmin() {
           <button class="btn btn-soft btn-small" data-admin-action="block" data-id="${escapeAttr(u.id)}" data-value="${!u.isBlocked}">${u.isBlocked ? 'Розблок' : 'Блок'}</button>
         </td>
       </tr>`).join('');
-    root.innerHTML = `<div class="card admin-card"><h3>Користувачі</h3><p>Перший акаунт отримує права адміністратора. За замовчуванням нові акаунти автоматично додаються у whitelist, якщо HOMECRAFT_AUTO_WHITELIST=true.</p><table class="user-table"><thead><tr><th>Акаунт</th><th>Minecraft</th><th>Доступ</th><th>Стан</th><th>Роль</th><th>Дії</th></tr></thead><tbody>${rows || '<tr><td colspan="6">Поки немає користувачів</td></tr>'}</tbody></table></div>
+    root.innerHTML = `<div class="card admin-card"><h3>Користувачі</h3><p>Перший акаунт отримує права адміністратора. За замовчуванням нові акаунти автоматично додаються у whitelist, якщо HOMECRAFT_AUTO_WHITELIST=true.</p><div class="table-scroll" role="region" aria-label="Список користувачів" tabindex="0"><table class="user-table"><thead><tr><th>Акаунт</th><th>Minecraft</th><th>Доступ</th><th>Стан</th><th>Роль</th><th>Дії</th></tr></thead><tbody>${rows || '<tr><td colspan="6">Поки немає користувачів</td></tr>'}</tbody></table></div></div>
       <div class="card admin-card" id="minecraft-connection-admin">
         <h3>Підключення окремого Minecraft-сервера</h3>
         <p>Коли PUBLIC_SITE_URL налаштовано, завантаж файл і поклади його в папку config ігрового сервера. Після цього перезапусти Minecraft звичайною кнопкою панелі.</p>
