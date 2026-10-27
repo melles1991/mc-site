@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "http_launcher_checks": 34,
+  "swing_checks": 14,
+  "regression_checks": 15,
+  "syntax_check": "PASS",
+  "shared_layout_check": "PASS",
+  "live_site_deployed": false,
+  "minecraft_launched": false,
+  "native_windows_tested": false
+}

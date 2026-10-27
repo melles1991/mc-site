@@ -117,3 +117,7 @@ body .container { width: min(var(--hc-content-width), calc(100% - 48px)); margin
  .hc-security-row .btn {width:100%;}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Launcher downloads wrap on narrow screens. */
+.hc-choice .hc-download-actions { display:flex; flex-wrap:wrap; gap:10px; width:100%; margin-top:auto; }
+.hc-choice .hc-download-actions .btn { margin-top:0; }

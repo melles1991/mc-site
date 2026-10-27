@@ -205,7 +205,7 @@ async function refreshClientMods() {
         return;
       }
       const incomplete = cm.ready === false
-        ? '<p class="muted-small">Набір модів оновлюється. Перед грою перевір, чи всі файли доступні.</p>'
+        ? '<p class="muted-small">Не всі 5 модів доступні. Відсутні: ' + escapeHtml((cm.missingIds || []).join(', ')) + '. Спробуй пізніше або звернися в Discord.</p>'
         : '';
       root.innerHTML = incomplete + files.map(file => {
         const version = file.version ? escapeHtml(String(file.version)) : '';

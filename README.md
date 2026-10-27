@@ -137,3 +137,8 @@ Cloudflare потребує перевірки на сервері. Тести �
 
 ## R5.15.5
 Докладніше: `HOTFIX_R5_15_5_UA.md`.
+
+
+## R5.19.2 — моди та Launcher 3.1
+
+Актуальна інструкція: [RELEASE_NOTES_R5.19.2_UA.md](RELEASE_NOTES_R5.19.2_UA.md). У client-mods включено всі 5 модів зі скріну; у public/launcher — готові JAR, ZIP для Windows/Linux та SOURCE. Онови каталог client-mods разом із client-pack.json. Власні config/data/logs збережи.

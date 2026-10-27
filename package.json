@@ -1,6 +1,6 @@
 {
   "name": "homecraft-minecraft-site-wrapper",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "description": "Home Craft Minecraft server website wrapper with auth, profile linking and server online API.",
   "main": "server.js",

@@ -46,11 +46,11 @@ const DATA_DIR = path.join(ROOT, 'data');
 // Runtime requirements shipped with the 26.3 source release.
 const MINECRAFT_RUNTIME = Object.freeze({
   minecraft: '26.3',
-  neoforge: '26.3.0.97',
+  neoforge: '26.3.0.99',
   minimumNeoForge: '26.3.0.97',
   neoForgeRange: '[26.3.0.97,26.4)',
   java: 25,
-  installerUrl: 'https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.97/neoforge-26.3.0.97-installer.jar'
+  installerUrl: 'https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.99/neoforge-26.3.0.99-installer.jar'
 });
 const RUNTIME_LABEL = `Minecraft ${MINECRAFT_RUNTIME.minecraft} / NeoForge ${MINECRAFT_RUNTIME.neoforge}`;
 
@@ -122,17 +122,20 @@ const TARGET_RESOURCE_PACK_FORMAT = Object.freeze([97, 1]);
 let resourcePackValidationCache = { filePath: '', mtimeMs: -1, size: -1, status: null };
 let resourcePackHashCache = { filePath: '', mtimeMs: -1, size: -1, sha1: '' };
 const MAX_RESOURCE_PACK_BYTES = Number(process.env.HOMECRAFT_MAX_RESOURCE_PACK_BYTES || 128 * 1024 * 1024);
-const SERVER_MODS_DIR = path.resolve(ROOT, process.env.HOMECRAFT_SERVER_MODS_DIR || process.env.HOMECRAFT_MODS_DIR || (process.env.HOMECRAFT_MC_DIR ? path.join(process.env.HOMECRAFT_MC_DIR, 'mods') : path.join('..', 'mods')));
+const SERVER_MODS_DIR = path.resolve(ROOT, process.env.HOMECRAFT_SERVER_MODS_DIR || process.env.HOMECRAFT_MODS_DIR || (process.env.HOMECRAFT_MC_DIR ? path.join(process.env.HOMECRAFT_MC_DIR, 'mods') : path.join('client-mods')));
 function parseEnvList(value) {
   return String(value || '').split(/[;,]/).map(v => v.trim().toLowerCase()).filter(Boolean);
 }
+// Fixed first-party client pack, shared by the download page and launcher.
+const CLIENT_PACK_IDS = Object.freeze(['homecraftauth', 'homecraftchat', 'homecraftguild', 'homecraftspawnprotection', 'realtime']);
 const CLIENT_MODS_MODE = String(process.env.HOMECRAFT_CLIENT_MODS_MODE || 'auto').trim().toLowerCase() === 'manual' ? 'manual' : 'auto';
-const CLIENT_MODS_INCLUDE = parseEnvList(process.env.HOMECRAFT_CLIENT_MODS_INCLUDE || 'homecraftauth,homecraft-auth,homecraftguild,homecraft-guild,homecraftspawnprotection,homecraft-spawn-protection,spawnprotection,spawn-protection');
+const CLIENT_MODS_INCLUDE = [...new Set([...CLIENT_PACK_IDS, ...parseEnvList(process.env.HOMECRAFT_CLIENT_MODS_INCLUDE || 'homecraft-auth,homecraft-guild,homecraft-spawn-protection')])];
 const CLIENT_MODS_EXCLUDE = parseEnvList(process.env.HOMECRAFT_CLIENT_MODS_EXCLUDE || 'homecraftmap,homecraft-map,server-only,dedicated-server');
 const CLIENT_MODS_PROJECT_PREFIXES = parseEnvList(process.env.HOMECRAFT_CLIENT_MODS_PROJECT_PREFIXES || 'homecraft,home-craft');
 // Strict download allowlist: only Home Craft JARs that we build and that must exist on the client.
 // Keep this list exact so dependencies, libraries and server-only bridge mods never appear on /download.
-const CLIENT_MODS_REQUIRED_IDS = parseEnvList(process.env.HOMECRAFT_CLIENT_MODS_REQUIRED_IDS || 'homecraftauth,homecraftguild,homecraftspawnprotection');
+// Legacy three-ID environment settings must not hide Chat or Realtime.
+const CLIENT_MODS_REQUIRED_IDS = CLIENT_PACK_IDS;
 const CLIENT_MODS_REQUIRE_CLIENT_SIDE = String(process.env.HOMECRAFT_CLIENT_MODS_REQUIRE_CLIENT_SIDE || 'true').toLowerCase() !== 'false';
 const CLIENT_MODS_CACHE_MS = Number(process.env.HOMECRAFT_CLIENT_MODS_CACHE_MS || 5000);
 let clientModsCache = { at: 0, result: null };
@@ -1656,12 +1659,11 @@ function matchesModTokenList(tokenList, meta, fileName) {
 }
 
 function isHomeCraftOwnedClientMod(meta, fileName) {
-  return matchesModTokenList(CLIENT_MODS_PROJECT_PREFIXES, meta, fileName);
+  return CLIENT_PACK_IDS.includes(meta?.modId) || matchesModTokenList(CLIENT_MODS_PROJECT_PREFIXES, meta, fileName);
 }
 
 function isRequiredHomeCraftClientBuild(meta, fileName) {
-  if (!CLIENT_MODS_REQUIRED_IDS.length) return isHomeCraftOwnedClientMod(meta, fileName);
-  return matchesModTokenList(CLIENT_MODS_REQUIRED_IDS, meta, fileName);
+  return CLIENT_PACK_IDS.includes(meta?.modId);
 }
 
 function classifyClientModFile(filePath, fileName) {
@@ -1691,6 +1693,9 @@ function classifyClientModFile(filePath, fileName) {
   const hasClientSide = sides.includes('CLIENT') || meta.hasClientCode || meta.hasClientVisualAssets;
   const serverOnly = sides.length > 0 && sides.every(v => v === 'SERVER') && !meta.hasClientCode && !meta.hasClientVisualAssets;
 
+  // Realtime is intentionally distributed in this client pack even though its
+  // metadata declares server dependencies. This is not permission for other server mods.
+  const packDistribution = meta.modId === 'realtime';
   const ownedHomeCraftMod = isHomeCraftOwnedClientMod(meta, fileName);
   const requiredHomeCraftBuild = isRequiredHomeCraftClientBuild(meta, fileName);
   const enriched = {
@@ -1742,11 +1747,11 @@ function classifyClientModFile(filePath, fileName) {
     return { ...enriched, reason: 'incompatible-minecraft', reasonLabel: 'потрібна збірка для Minecraft ' + MINECRAFT_RUNTIME.minecraft };
   }
 
-  if (serverOnly) {
+  if (serverOnly && !packDistribution) {
     return { ...enriched, reason: 'server-only-metadata', reasonLabel: 'server-only metadata / тільки сервер', clientRequirement: 'server-only' };
   }
 
-  if (CLIENT_MODS_REQUIRE_CLIENT_SIDE && !hasClientSide) {
+  if (CLIENT_MODS_REQUIRE_CLIENT_SIDE && !hasClientSide && !packDistribution) {
     return { ...enriched, reason: 'no-client-side-detected', reasonLabel: 'немає client/render/assets', clientRequirement: 'server-or-unknown' };
   }
 
@@ -1755,7 +1760,7 @@ function classifyClientModFile(filePath, fileName) {
   }
 
   const reason = hasManualInclude ? 'required-build-client-side' : 'auto-required-build-client-side';
-  const reasonLabel = meta.hasClientCode
+  const reasonLabel = packDistribution ? 'мод клієнтського комплекту' : meta.hasClientCode
     ? 'client-код'
     : meta.hasClientVisualAssets
       ? 'client assets / клієнтські assets'
@@ -1771,6 +1776,21 @@ function isAllowedClientModFile(filePath, fileName) {
 
 function clientModPublicPath(fileName) {
   return `/client-mods/${encodeURIComponent(fileName)}`;
+}
+
+function publishedClientPack() {
+  const file = path.join(SERVER_MODS_DIR, 'client-pack.json');
+  if (!fs.existsSync(file)) return null;
+  const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (data.schemaVersion !== 1 || !Array.isArray(data.files) || data.files.length !== CLIENT_PACK_IDS.length) throw new Error('Некоректний опублікований комплект модів');
+  const byName = new Map(), ids = new Set();
+  for (const item of data.files) {
+    if (!CLIENT_PACK_IDS.includes(item.id) || ids.has(item.id) || typeof item.filename !== 'string'
+        || !/^[a-zA-Z0-9][a-zA-Z0-9._+ -]*\.jar$/.test(item.filename) || byName.has(item.filename)
+        || !Number.isSafeInteger(item.size) || item.size < 1 || !/^[a-f0-9]{64}$/.test(item.sha256)) throw new Error('Некоректний файл опублікованого комплекту');
+    ids.add(item.id);byName.set(item.filename, item);
+  }
+  return byName;
 }
 
 function listClientMods() {
@@ -1796,8 +1816,15 @@ function listClientMods() {
       result.available = true;
       const files = [];
       const skipped = [];
+      const published = publishedClientPack();
       for (const fileName of fs.readdirSync(SERVER_MODS_DIR)) {
         if (!isJarOrZipFile(fileName)) continue;
+        // An explicit release catalogue prevents old files left by an overlay
+        // deployment from hiding every current version as a duplicate.
+        if (published && !published.has(fileName)) {
+          skipped.push({ fileName, reason: 'not-published-build', reasonLabel: 'не поточна опублікована версія' });
+          continue;
+        }
         const filePath = path.join(SERVER_MODS_DIR, fileName);
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) continue;
@@ -1822,7 +1849,10 @@ function listClientMods() {
           sizeBytes: stat.size,
           updatedAt: new Date(stat.mtimeMs || Date.now()).toISOString()
         };
-        if (info.allowed) {
+        const releaseFile = published && published.get(fileName);
+        if (releaseFile && (releaseFile.id !== info.modId || releaseFile.size !== stat.size || releaseFile.sha256 !== cachedLauncherSha256(filePath))) {
+          skipped.push({ ...item, reason: 'published-pack-mismatch', reasonLabel: 'файл не відповідає опублікованому комплекту' });
+        } else if (info.allowed) {
           files.push({ ...item, publicPath: clientModPublicPath(fileName), url: absolutePublicUrl(clientModPublicPath(fileName)) });
         } else {
           skipped.push(item);
@@ -1847,7 +1877,7 @@ function listClientMods() {
   return result;
 }
 
-// Public, read-only update manifest. The client only installs three explicitly
+// Public, read-only update manifest. The client installs the five explicitly
 // allowlisted HomeCraft client modules. A hash detects incomplete/corrupt downloads;
 // HTTPS is still required to authenticate the publishing server.
 const launcherHashCache = new Map();
@@ -1868,7 +1898,7 @@ function cachedLauncherSha256(filePath) {
 }
 function clientLauncherManifest() {
   const listing = listClientMods();
-  const allowed = new Set(['homecraftauth', 'homecraftguild', 'homecraftspawnprotection']);
+  const allowed = new Set(CLIENT_PACK_IDS);
   const files = listing.files.filter(file => allowed.has(file.modId));
   return {
     schemaVersion: 1,
@@ -1876,7 +1906,9 @@ function clientLauncherManifest() {
     minecraft: MINECRAFT_RUNTIME.minecraft,
     neoforge: MINECRAFT_RUNTIME.neoforge,
     neoforgeRange: MINECRAFT_RUNTIME.neoForgeRange,
-    ready: Boolean(listing.ready && files.length === 3),
+    ready: Boolean(listing.ready && files.length === allowed.size),
+    missingIds: listing.missingIds,
+    launcherVersion: '3.1.0',
     requiredIds: [...allowed],
     files: files.map(file => ({
       id: file.modId,
@@ -2159,7 +2191,7 @@ function serveStatic(req, res, urlPath) {
   const ext = path.extname(filePath).toLowerCase();
   const isPrivate = new Set(['login.html','register.html','forgot-password.html','reset-password.html','profile.html','admin.html','news.html']).has(path.basename(filePath));
   const headers = {
-    'Content-Type': MIME[ext] || 'application/octet-stream',
+    'Content-Type': ext === '.jar' ? 'application/java-archive' : MIME[ext] || 'application/octet-stream',
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': isPrivate ? 'no-referrer' : 'strict-origin-when-cross-origin',
     ...(isPrivate ? { 'X-Robots-Tag': 'noindex, nofollow, noarchive' } : {})
@@ -2169,6 +2201,11 @@ function serveStatic(req, res, urlPath) {
     headers['Pragma'] = 'no-cache';
   } else if (['.svg', '.png', '.jpg', '.webp'].includes(ext)) {
     headers['Cache-Control'] = 'public, max-age=3600';
+  }
+  if (['.jar', '.zip'].includes(ext)) {
+    headers['Content-Disposition'] = `attachment; filename="${path.basename(filePath)}"`;
+    headers['Content-Length'] = fs.statSync(filePath).size;
+    headers['Cache-Control'] = 'no-cache';
   }
   res.writeHead(200, headers);
   fs.createReadStream(filePath).pipe(res);
