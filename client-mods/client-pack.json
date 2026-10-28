@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "release": "R5.18.28",
+  "release": "R5.18.31",
   "files": [
     {
       "id": "homecraftauth",
       "filename": "homecraftauth-neoforge-26.3-1.0.45-alpha.26.3.21+mc26.3-neoforge.jar",
-      "size": 174667,
-      "sha256": "ec18c43fb8f13219774ba6318e814752023bceba0318040579ae57c2553d24b3"
+      "size": 174666,
+      "sha256": "68d8ff8c2c18861d9fd98d8390e4cdb385aff359b64beb971040ed30357f592d"
     },
     {
       "id": "homecraftchat",
       "filename": "homecraftchat-neoforge-26.3-0.1.5-alpha.26.3.6+mc26.3-neoforge.jar",
       "size": 77177,
-      "sha256": "238683c1bc903934449b3ff24c0b9757d527a29b7724ba0ea4c116cb9bbccaa3"
+      "sha256": "253f702269dc53f80e374e1ddd4fb3b8af73153693bcdb556ed786e0da9436c4"
     },
     {
       "id": "homecraftguild",
-      "filename": "homecraftguild-neoforge-26.3-0.1.202-alpha.26.3.44+mc26.3-neoforge.jar",
-      "size": 1106264,
-      "sha256": "1eec91f0200a5dbcd01bdd552e0db4d8cfafbc2a4dc42d352b40325873278e06"
+      "filename": "homecraftguild-neoforge-26.3-0.1.205-alpha.26.3.47+mc26.3-neoforge.jar",
+      "size": 1130392,
+      "sha256": "df3b1a43c3016c051418f70884e3eb4304c9d98f8939a9196bc89258e2324956"
     },
     {
       "id": "homecraftspawnprotection",
