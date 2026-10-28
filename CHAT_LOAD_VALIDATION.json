@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "chat_version": "0.1.2-alpha.26.3.3+mc26.3-neoforge",
+  "clean_isolated_compile": true,
+  "actual_mixin_package_matcher": {
+    "old_chat": "fails on ChatClientEvents as expected",
+    "new_chat_classes": 27,
+    "auth_classes": 63
+  },
+  "client_state_checks": 32,
+  "channel_policy_checks": 35,
+  "other_mods_unchanged": true,
+  "server_mods": 6,
+  "client_mods": 5,
+  "minecraft_graphical_launch_tested": false,
+  "real_site_launcher_checks": 34,
+  "minecraft_accessor_fields_verified": [
+    "ChatScreen.initial",
+    "ChatScreen.isDraft"
+  ]
+}

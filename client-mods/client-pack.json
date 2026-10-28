@@ -1,36 +1,36 @@
 {
   "schemaVersion": 1,
-  "release": "R5.18.13a",
+  "release": "R5.18.28",
   "files": [
     {
       "id": "homecraftauth",
-      "filename": "homecraftauth-neoforge-26.3-1.0.43-alpha.26.3.19+mc26.3-neoforge.jar",
-      "size": 174576,
-      "sha256": "affe7f69f115f71a28fa1876f66719cf6d99669245c7bb653146e7a8cf3fb588"
+      "filename": "homecraftauth-neoforge-26.3-1.0.45-alpha.26.3.21+mc26.3-neoforge.jar",
+      "size": 174667,
+      "sha256": "ec18c43fb8f13219774ba6318e814752023bceba0318040579ae57c2553d24b3"
     },
     {
       "id": "homecraftchat",
-      "filename": "homecraftchat-neoforge-26.3-0.1.2-alpha.26.3.3+mc26.3-neoforge.jar",
-      "size": 68896,
-      "sha256": "e63701f46b6d49d5ac645ccf6ab171797ffa2d8a2230364a48e854ba2374e412"
+      "filename": "homecraftchat-neoforge-26.3-0.1.5-alpha.26.3.6+mc26.3-neoforge.jar",
+      "size": 77177,
+      "sha256": "238683c1bc903934449b3ff24c0b9757d527a29b7724ba0ea4c116cb9bbccaa3"
     },
     {
       "id": "homecraftguild",
-      "filename": "homecraftguild-neoforge-26.3-0.1.194-alpha.26.3.36+mc26.3-neoforge.jar",
-      "size": 1085549,
-      "sha256": "95fda060e7a7a545f0585791231e131b7f42284961e24f3236c98ab2b7c48223"
+      "filename": "homecraftguild-neoforge-26.3-0.1.202-alpha.26.3.44+mc26.3-neoforge.jar",
+      "size": 1106264,
+      "sha256": "1eec91f0200a5dbcd01bdd552e0db4d8cfafbc2a4dc42d352b40325873278e06"
     },
     {
       "id": "homecraftspawnprotection",
-      "filename": "homecraftspawnprotection-neoforge-26.3-1.1.17-alpha.26.3.7+mc26.3-neoforge.jar",
-      "size": 50312,
-      "sha256": "6f065641cd2e1915701b52be7091599ce209484c5fc56459b242f5fd600f8ca9"
+      "filename": "homecraftspawnprotection-neoforge-26.3-1.1.20-alpha.26.3.10+mc26.3-neoforge.jar",
+      "size": 51154,
+      "sha256": "67111e00f170bc7d295c68cc1053b01b7edc69649834c7cb989c545f417288fb"
     },
     {
       "id": "realtime",
-      "filename": "realtime-neoforge-26.3-1.0.3-alpha.26.3.4+mc26.3-neoforge.jar",
-      "size": 154860,
-      "sha256": "d892ae728a734d78cfd692133531ea283a5f5aee632442f3cc5cdc05b85f0a67"
+      "filename": "realtime-neoforge-26.3-1.0.4-alpha.26.3.5+mc26.3-neoforge.jar",
+      "size": 154853,
+      "sha256": "b7bc8a16ab07a9ebf7b1544906f5b0bad7bbaeaa21f18cce1aa4ae280c934bc5"
     }
   ]
 }
